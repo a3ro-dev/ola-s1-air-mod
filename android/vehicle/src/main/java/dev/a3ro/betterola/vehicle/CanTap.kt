@@ -1,4 +1,4 @@
-package dev.a3ro.betterola.hud
+package dev.a3ro.betterola.vehicle
 
 import io.grpc.CallOptions
 import io.grpc.ManagedChannel

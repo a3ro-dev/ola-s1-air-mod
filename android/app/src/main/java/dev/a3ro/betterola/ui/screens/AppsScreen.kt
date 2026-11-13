@@ -105,7 +105,7 @@ fun AppsScreen(manager: ScooterManager, snack: SnackbarHostState) {
                 if (working) {
                     LinearProgressIndicator(
                         progress = { progress ?: 0f }.takeIf { progress != null } ?: { 0f },
-                        modifier = Modifier.fillMaxWidth(), color = tokens.amber, trackColor = tokens.hairline
+                        modifier = Modifier.fillMaxWidth(), color = tokens.live, trackColor = tokens.hairline
                     )
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {

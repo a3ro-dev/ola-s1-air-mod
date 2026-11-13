@@ -1,4 +1,4 @@
-package dev.a3ro.betterola.hud
+package dev.a3ro.betterola.vehicle
 
 enum class Level { Info, Warn, Fault }
 

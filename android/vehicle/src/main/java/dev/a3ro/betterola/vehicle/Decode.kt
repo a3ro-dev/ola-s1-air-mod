@@ -1,4 +1,4 @@
-package dev.a3ro.betterola.hud
+package dev.a3ro.betterola.vehicle
 
 import kotlin.math.max
 
@@ -47,8 +47,8 @@ fun bits(d: ByteArray, start: Int, len: Int): Long {
 }
 
 enum class DriveMode(val label: String) {
-    Parked("Parked"), Normal("Normal"), Sport("Sport"), Custom("Custom"),
-    Reverse("Reverse"), Eco("Eco"), Hyper("Hyper"), Unknown("");
+    Parked("Park"), Normal("Normal"), Sport("Sport"), Custom("Custom"),
+    Reverse("Easy Park"), Eco("Eco"), Hyper("Hyper"), Unknown("");
 
     companion object {
         fun from(word: Int) = when (word) {

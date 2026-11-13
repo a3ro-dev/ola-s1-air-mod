@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.1.0 - 2026-11-13
+
+The release where this stopped being a setup wizard and became a thing you use on every ride.
+
+**The dash HUD**
+- New overlay app (`dev.a3ro.betterola.hud`) that draws above Android Auto and never takes a touch. Speed, mode, charge and range sit in one pill at the top left, clear of the Maps search bar and the app tabs.
+- Ordered-dither indicator glow, a red brake strip, and a power/regen meter along the bottom edge. No blur, no gradients, and the animation stops when the system animation scale is 0.
+- The pill widens for one message at a time: side stand down, power reduced, charging, hazards, or the CAN data stopped.
+- Read-only CAN tap. The HUD has no write path.
+
+**The phone app**
+- The scooter is remembered. Open the app and it reconnects; the scan screen only shows up when there is nothing saved or the scooter is unreachable.
+- OTA updates from GitHub Releases, on launch and from Tools. The app downloads the APK and opens the system installer. The HUD APK in the same release is ignored by the update checker.
+- New Android Auto link row on the Scooter tab. It watches the headunit server on port 5277 and walks you through starting it when it is off.
+- The app now launches OpenHeadUnit by its real activity instead of a monkey intent.
+- Activity log and check-for-updates live in Tools.
+
+**Fixes**
+- Android Auto 17.4 and later can no longer be started in Self-Mode from an app. The app now checks the headunit server, opens Android Auto settings, waits, then launches the receiver on the scooter.
+- Setup no longer leaves the dash on the wrong screen after installing the HUD.
+
+**Docs**
+- Rewritten README, a new developer README for the Android modules, and a troubleshooting guide with the log tag and the usual failure modes.
+
 ## 1.2.0 - 2026-11-08
 
 Android Auto and CarPlay mods, a safer nav ball, and a lot more confirmation before anything changes on the scooter.

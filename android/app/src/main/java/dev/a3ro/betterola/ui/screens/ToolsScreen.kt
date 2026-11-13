@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import dev.a3ro.betterola.model.ScooterManager
 import dev.a3ro.betterola.ui.components.*
 import dev.a3ro.betterola.ui.theme.tokens
+import dev.a3ro.betterola.vehicle.HudState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,7 +40,7 @@ private val Shortcuts = listOf(
 private val Presets = listOf("id", "uptime", "getprop ro.build.display.id", "pm list packages -3", "df -h /data")
 
 @Composable
-fun ToolsScreen(manager: ScooterManager, snack: SnackbarHostState, onOpenLog: () -> Unit) {
+fun ToolsScreen(manager: ScooterManager, snack: SnackbarHostState, onOpenLog: () -> Unit, onCheckUpdates: () -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     val connected by manager.isConnected.collectAsState()
@@ -71,6 +72,9 @@ fun ToolsScreen(manager: ScooterManager, snack: SnackbarHostState, onOpenLog: ()
                 })
             }
         }
+
+        Section("Live signals")
+        LiveSignals(manager)
 
         Section("Open on the scooter")
         FlowShortcuts(connected) { action ->
@@ -127,6 +131,7 @@ fun ToolsScreen(manager: ScooterManager, snack: SnackbarHostState, onOpenLog: ()
         }
 
         Section("This app")
+        InfoRow("Check for updates", "Now", onClick = onCheckUpdates)
         InfoRow("Activity log", "Open", onClick = onOpenLog)
         Spacer(Modifier.height(32.dp))
     }
@@ -182,5 +187,29 @@ fun LogSheet(manager: ScooterManager, onDismiss: () -> Unit) {
             items(logs) { Text(it, fontFamily = Mono, style = MaterialTheme.typography.labelSmall, color = tokens.ink2) }
         }
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+/** Raw decoded values, so you can check each one against the scooter's own dash. */
+@Composable
+private fun LiveSignals(manager: ScooterManager) {
+    val s by manager.signals.collectAsState()
+    val frames by manager.tapFrames.collectAsState()
+    fun yn(b: Boolean?) = when (b) { true -> "yes"; false -> "no"; null -> "--" }
+    Column {
+        InfoRow("Data from the scooter", if (frames > 0) "$frames frames" else "Nothing yet")
+        InfoRow("Speed", s.speedKmh?.let { "$it km/h" } ?: "--")
+        InfoRow("Battery", s.socPercent?.let { "$it %" } ?: "--")
+        InfoRow("Range", s.rangeKm?.let { "$it km" } ?: "--")
+        InfoRow("Mode", s.mode.label.ifEmpty { "--" })
+        InfoRow("Left indicator", yn(s.leftIndicator))
+        InfoRow("Right indicator", yn(s.rightIndicator))
+        InfoRow("Brake", if (s.brake) "pulled" else "released")
+        InfoRow("Brake lever voltage", s.brakeVolts?.let { "%.2f V".format(it) } ?: "--")
+        InfoRow("Side stand down", yn(s.sideStandDown))
+        InfoRow("Regen available", yn(s.regenAvailable))
+        InfoRow("Unlocked", yn(s.unlocked))
+        InfoRow("Charging", yn(s.charging))
+        InfoRow("Motor current", s.motorAmps?.let { "%.1f A".format(it) } ?: "--")
     }
 }

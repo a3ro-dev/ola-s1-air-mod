@@ -6,7 +6,15 @@ import dev.a3ro.betterola.adb.AdbManager
 import dev.a3ro.betterola.discovery.DiscoveredScooter
 import dev.a3ro.betterola.discovery.NetworkScanner
 import dev.a3ro.betterola.grpc.S1GrpcClient
+import dev.a3ro.betterola.vehicle.CanTap
+import dev.a3ro.betterola.vehicle.HudState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
@@ -102,9 +110,11 @@ class ScooterManager(private val context: Context) {
 
     private val adbManager = AdbManager(context)
     private var grpcClient: S1GrpcClient? = null
+    private val prefs = context.getSharedPreferences("betterola_prefs", Context.MODE_PRIVATE)
 
-    val scooterIp = MutableStateFlow("")
-    val scooterScope = MutableStateFlow<Int?>(null)
+    // The last scooter is remembered, so the app reconnects instead of asking again.
+    val scooterIp = MutableStateFlow(prefs.getString(KEY_IP, "") ?: "")
+    val scooterScope = MutableStateFlow(if (prefs.contains(KEY_SCOPE)) prefs.getInt(KEY_SCOPE, 0) else null)
     val isConnected = MutableStateFlow(false)
 
     val currentStep = MutableStateFlow<SetupStep?>(null)
@@ -116,6 +126,40 @@ class ScooterManager(private val context: Context) {
     val vehicleSummary = MutableStateFlow<VehicleSummary?>(null)
 
     val live = MutableStateFlow(VehicleLive())
+    /** Frames the read-only CAN tap has delivered; shown in Tools so you can see it is alive. */
+    val tapFrames = MutableStateFlow(0)
+    val signals = MutableStateFlow(HudState())
+    private val liveScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var tapJob: Job? = null
+    private var tick: Job? = null
+    @Volatile private var tapState = HudState()
+    private val frameCounter = java.util.concurrent.atomic.AtomicInteger()
+
+    /** Starts the listen-only CAN tap so the phone can show battery and range. Safe to call twice. */
+    fun startLive() {
+        val host = grpcClient?.resolveTargetHost() ?: return
+        tapJob?.cancel(); tick?.cancel()
+        tapState = HudState(); frameCounter.set(0)
+        tapJob = CanTap(host).start(liveScope, onFrame = { f ->
+            frameCounter.incrementAndGet()
+            val n = tapState.apply(f, System.currentTimeMillis())
+            if (n !== tapState) {
+                tapState = n
+                signals.value = n
+                live.value = VehicleLive(
+                    socPercent = n.socPercent?.toDouble(),
+                    rangeKm = n.rangeKm?.toDouble(),
+                    driveMode = n.mode.label.takeIf { it.isNotEmpty() },
+                    sideStandUp = n.sideStandDown?.not(),
+                    charging = n.charging,
+                    lastFrameMs = System.currentTimeMillis(),
+                )
+            }
+        }, onConnected = { up -> android.util.Log.d("BetterOla", "can tap connected=$up") })
+        tick = liveScope.launch { while (isActive) { tapFrames.value = frameCounter.get(); delay(500) } }
+    }
+
+    fun stopLive() { tapJob?.cancel(); tick?.cancel(); tapJob = null; live.value = VehicleLive() }
     val adbOpen = MutableStateFlow(false)
 
     private val _logs = MutableStateFlow<List<String>>(emptyList())
@@ -147,8 +191,18 @@ class ScooterManager(private val context: Context) {
         grpcClient = client
         scooterIp.value = ip
         scooterScope.value = scope
-        if (markConnected) isConnected.value = true
+        prefs.edit().putString(KEY_IP, ip).apply {
+            if (scope != null) putInt(KEY_SCOPE, scope) else remove(KEY_SCOPE)
+        }.apply()
+        if (markConnected) { isConnected.value = true; startLive() }
         log("[+] Successfully connected to MoveOS Diagnostics daemon (Port 50005)!")
+    }
+
+    /** Reconnects to the remembered scooter without a prompt. False when nothing is saved or it is unreachable. */
+    suspend fun autoReconnect(): Boolean = withContext(Dispatchers.IO) {
+        val ip = scooterIp.value
+        if (ip.isBlank()) return@withContext false
+        runCatching { connect(ip, scooterScope.value) }.isSuccess
     }
 
     /**
@@ -435,6 +489,7 @@ class ScooterManager(private val context: Context) {
             val client = ensureGrpc()
             val launchCmd = when (packageName) {
                 "com.asjohn720.ball" -> "am start -n com.asjohn720.ball/.ui.MainActivity"
+                "com.asjohn720.androidauto" -> "am start -n com.asjohn720.androidauto/com.andrerinas.openheadunit.main.MainActivity"
                 else -> "monkey -p $packageName -c android.intent.category.LAUNCHER 1"
             }
             val out = client.shell(launchCmd).second
@@ -450,6 +505,24 @@ class ScooterManager(private val context: Context) {
             log("[!] Failed to launch $friendlyName: ${e.message}")
             false
         }
+    }
+
+    /** True when Android Auto's developer headunit server is listening on the phone (port 5277). */
+    suspend fun headunitServerUp(): Boolean = withContext(Dispatchers.IO) {
+        NetworkScanner.testPort("127.0.0.1", 5277, null, 400)
+    }
+
+    /**
+     * Waits for the headunit server after the user starts it in Android Auto's developer settings.
+     * Android Auto 17.4+ removed the automated Self-Mode launch, so this manual step is the only path left.
+     */
+    suspend fun awaitHeadunitServer(timeoutMs: Long = 120_000): Boolean = withContext(Dispatchers.IO) {
+        val until = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < until) {
+            if (headunitServerUp()) return@withContext true
+            delay(1000)
+        }
+        false
     }
 
     /**
@@ -648,9 +721,15 @@ class ScooterManager(private val context: Context) {
     }
 
     fun disconnect() {
+        stopLive()
         grpcClient?.close()
         adbManager.disconnect()
         isConnected.value = false
         vehicleSummary.value = null
+    }
+
+    private companion object {
+        const val KEY_IP = "scooter_ip"
+        const val KEY_SCOPE = "scooter_scope"
     }
 }

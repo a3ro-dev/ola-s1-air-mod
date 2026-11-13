@@ -2,7 +2,7 @@
 
 A phone companion and an on-dash HUD for the Ola S1's Android head unit. It finds the scooter on your hotspot, installs and looks after the mods, and keeps the numbers that matter on screen while you use Android Auto.
 
-No laptop. No flashing. A restart undoes the debug access.
+No laptop. No flashing. The ADB key lives in RAM, and the app can put the scooter back in customer mode when you are done.
 
 > Not affiliated with, endorsed by, or connected to Ola Electric Mobility Ltd. "Ola", "MoveOS" and "S1" belong to their owners and are used only to say what this works with. Read [legal/DISCLAIMER.md](legal/DISCLAIMER.md).
 >
@@ -24,7 +24,7 @@ The HUD is not a replacement dashboard. It is a thin layer over whatever is alre
 
 Top left: speed, drive mode, state of charge and remaining range in one pill. It sits left of Android Auto's search bar and tabs on purpose.
 
-Screen edges: an amber ordered-dither glow for the indicators, and a red strip for the brake. Along the bottom edge, a dithered power meter. Amber when drawing power, green when regenerating, red under braking. Easy Park hatches it.
+Screen edges: an yellow ordered-dither glow for the indicators, and a red strip for the brake. Along the bottom edge, a dithered power meter. Orange when drawing power, green when regenerating, red under braking. Easy Park hatches it.
 
 The pill widens for the one thing worth saying: side stand down, power reduced, charging, hazard lights, data stopped.
 
@@ -93,7 +93,7 @@ Segmented-LCD and non-Android clusters are not supported.
 No. The scooter ships with a diagnostics daemon that runs as root on port 50005. The app uses that. It never flashes a partition.
 
 **Does this void my warranty?**
-I cannot answer for Ola. What I can say is that nothing is written to a partition. The ADB key is bind-mounted in RAM, and a reboot removes it.
+I cannot answer for Ola. What I can say is that nothing is written to a partition. The ADB key is bind-mounted in RAM. Setup does switch the scooter's security property to service mode so the app can reach it; the **Debug access (ADB)** row on the Scooter tab sets it back to customer mode.
 
 **Can it unlock the scooter?**
 No, and the app does not pretend to. The head unit can ask the vehicle to unlock, but the VCU decides and answers on the CAN bus. The only remote unlock that works is Ola's own app through the cloud. See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
@@ -129,7 +129,8 @@ The full FAQ with commands and log tags is in [docs/TROUBLESHOOTING.md](docs/TRO
 
 ## Safety and reversibility
 
-- ADB is authorised with an RSA key bind-mounted **in RAM**. No partition is written, and a restart removes it.
+- ADB is authorised with an RSA key bind-mounted **in RAM**. No partition is written.
+- Setup switches the scooter to service mode so the app can reach it over the network. The **Debug access (ADB)** row puts it back to customer mode. A reboot clears the key mount but not that property, so close it when you are done.
 - The app does not touch the power manager or the auto-lock. The scooter still locks itself as designed.
 - The HUD only listens to CAN frames. It sends nothing.
 - The dash and its physical warnings remain the authority. Treat anything here as a convenience that can be late, wrong or blank, and glance only while riding.

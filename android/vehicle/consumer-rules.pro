@@ -1,0 +1,3 @@
+-keep class io.grpc.** { *; }
+-dontwarn io.grpc.**
+-dontwarn javax.annotation.**

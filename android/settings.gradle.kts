@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 rootProject.name = "S1Mods"
 include(":app")
 include(":hud")
+include(":vehicle")

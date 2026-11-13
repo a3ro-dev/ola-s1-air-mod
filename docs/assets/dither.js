@@ -1,7 +1,7 @@
-// 4x4 Bayer ordered dither. <canvas data-dither="x|y|r" data-from="0" data-to="1" data-color="#FFB021" data-cell="3">
+// 4x4 Bayer ordered dither. <canvas data-dither="x|y|r" data-from="0" data-to="1" data-color="#3DA5FF" data-cell="3">
 const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
 function paint(c){
-  const cell=+c.dataset.cell||3,col=c.dataset.color||'#FFB021',dir=c.dataset.dither||'x';
+  const cell=+c.dataset.cell||3,col=c.dataset.color||'#3DA5FF',dir=c.dataset.dither||'x';
   const a=+(c.dataset.from??0),b=+(c.dataset.to??1),p=c.dataset.t?+c.dataset.t:1;
   const w=c.clientWidth,h=c.clientHeight;if(!w||!h)return;
   c.width=Math.ceil(w/cell);c.height=Math.ceil(h/cell);

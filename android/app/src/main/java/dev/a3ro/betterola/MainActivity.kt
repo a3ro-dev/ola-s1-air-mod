@@ -25,8 +25,11 @@ import dev.a3ro.betterola.model.ScooterManager
 import dev.a3ro.betterola.ui.screens.*
 import dev.a3ro.betterola.ui.theme.BetterOlaTheme
 import dev.a3ro.betterola.ui.theme.tokens
+import dev.a3ro.betterola.util.ApkInstaller
 import dev.a3ro.betterola.util.AppRelease
 import dev.a3ro.betterola.util.UpdateChecker
+import kotlinx.coroutines.launch
+import java.io.File
 
 private enum class Tab(val title: String, val icon: ImageVector) {
     Scooter("Scooter", Icons.Outlined.ElectricScooter),
@@ -53,25 +56,54 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun App(manager: ScooterManager) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     val prefs = remember { ctx.getSharedPreferences("betterola_prefs", android.content.Context.MODE_PRIVATE) }
     val connected by manager.isConnected.collectAsState()
     var tab by rememberSaveable { mutableStateOf(Tab.Scooter) }
     var skipped by rememberSaveable { mutableStateOf(false) }
+    var booting by remember { mutableStateOf(manager.scooterIp.value.isNotBlank()) }
     var showAbout by remember { mutableStateOf(false) }
     var showLog by remember { mutableStateOf(false) }
     var update by remember { mutableStateOf<AppRelease?>(null) }
+    var updating by remember { mutableStateOf(false) }
+    var progress by remember { mutableStateOf<Float?>(null) }
+    var apkFile by remember { mutableStateOf<File?>(null) }
+    var needInstallPermission by remember { mutableStateOf(false) }
     val snack = remember { SnackbarHostState() }
+
+    // The last scooter is remembered, so opening the app just reconnects.
+    LaunchedEffect(Unit) {
+        if (booting) {
+            manager.autoReconnect()
+            booting = false
+        }
+    }
+
+    suspend fun checkForUpdate() {
+        val rel = UpdateChecker.fetchLatest()
+        if (rel != null && UpdateChecker.isNewer(rel.tag) && prefs.getString("update_skip_tag", null) != rel.tag) {
+            apkFile = null
+            needInstallPermission = false
+            update = rel
+        } else {
+            snack.showSnackbar("You're on the latest version (${BuildConfig.VERSION_NAME}).")
+        }
+    }
 
     LaunchedEffect(Unit) {
         val rel = UpdateChecker.fetchLatest()
-        if (rel != null && UpdateChecker.isNewer(rel.tag) && prefs.getString("update_skip_tag", null) != rel.tag) update = rel
+        if (rel != null && UpdateChecker.isNewer(rel.tag) && prefs.getString("update_skip_tag", null) != rel.tag) {
+            apkFile = null
+            needInstallPermission = false
+            update = rel
+        }
     }
 
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        if (!connected && !skipped) {
-            ConnectScreen(manager, onOpenAbout = { showAbout = true }, onSkip = { skipped = true })
-        } else {
-            Scaffold(
+        when {
+            booting -> Reconnecting(manager.scooterIp.value)
+            !connected && !skipped -> ConnectScreen(manager, onOpenAbout = { showAbout = true }, onSkip = { skipped = true })
+            else -> Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(snack) },
                 bottomBar = {
@@ -101,7 +133,7 @@ private fun App(manager: ScooterManager) {
                             when (tab) {
                                 Tab.Scooter -> ScooterScreen(manager, onOpenLog = { showLog = true }, snack = snack)
                                 Tab.Apps -> AppsScreen(manager, snack)
-                                Tab.Tools -> ToolsScreen(manager, snack, onOpenLog = { showLog = true })
+                                Tab.Tools -> ToolsScreen(manager, snack, onOpenLog = { showLog = true }, onCheckUpdates = { scope.launch { checkForUpdate() } })
                             }
                         }
                         TextButton(onClick = { showAbout = true }, modifier = Modifier.align(androidx.compose.ui.Alignment.End).heightIn(min = 48.dp)) {
@@ -118,19 +150,72 @@ private fun App(manager: ScooterManager) {
 
     update?.let { rel ->
         AlertDialog(
-            onDismissRequest = { update = null },
-            title = { Text("Update available") },
-            text = { Text("Version ${rel.tag} is out. You have ${BuildConfig.VERSION_NAME}.") },
+            onDismissRequest = { if (!updating) update = null },
+            title = { Text(if (updating) "Downloading update" else "Update available") },
+            text = {
+                if (updating) {
+                    Column {
+                        Text("Version ${rel.tag} is downloading.")
+                        Spacer(Modifier.height(12.dp))
+                        LinearProgressIndicator(
+                            progress = { progress ?: 0f },
+                            modifier = Modifier.fillMaxWidth(), color = tokens.live, trackColor = tokens.hairline
+                        )
+                    }
+                } else {
+                    Text("Version ${rel.tag} is out. You have ${BuildConfig.VERSION_NAME}. It installs over this app; your saved scooter and settings stay.")
+                    if (needInstallPermission) {
+                        Spacer(Modifier.height(10.dp))
+                        Text("Android needs permission to install apps from better-ola. Allow it on the screen that just opened, come back, and tap Update now again.", color = tokens.warn)
+                    }
+                }
+            },
             confirmButton = {
-                TextButton(onClick = {
-                    ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(rel.apkUrl ?: rel.pageUrl)))
-                    update = null
-                }) { Text("Download") }
+                TextButton(enabled = !updating, onClick = {
+                    val url = rel.apkUrl
+                    if (url == null) {
+                        ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(rel.pageUrl)))
+                        update = null
+                        return@TextButton
+                    }
+                    scope.launch {
+                        var file = apkFile
+                        if (file == null) {
+                            updating = true
+                            file = ApkInstaller.fetch(ctx, url, rel.tag) { progress = it }
+                            updating = false
+                            progress = null
+                            if (file == null) {
+                                snack.showSnackbar("Download failed. Try again on a better connection.")
+                                return@launch
+                            }
+                            apkFile = file
+                        }
+                        if (ApkInstaller.install(ctx, file)) {
+                            update = null
+                        } else {
+                            needInstallPermission = true
+                        }
+                    }
+                }) { Text(if (updating) "Downloading…" else "Update now") }
             },
             dismissButton = {
-                TextButton(onClick = { prefs.edit().putString("update_skip_tag", rel.tag).apply(); update = null }) { Text("Skip this version") }
+                if (!updating) {
+                    TextButton(onClick = { prefs.edit().putString("update_skip_tag", rel.tag).apply(); update = null }) { Text("Skip this version") }
+                }
             }
         )
+    }
+}
+
+@Composable
+private fun Reconnecting(ip: String) {
+    Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+        Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+            CircularProgressIndicator(color = tokens.warn)
+            Spacer(Modifier.height(16.dp))
+            Text("Reconnecting to $ip", color = tokens.ink2, style = MaterialTheme.typography.bodyLarge)
+        }
     }
 }
 

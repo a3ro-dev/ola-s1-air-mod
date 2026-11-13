@@ -1,4 +1,4 @@
-package dev.a3ro.betterola.hud
+package dev.a3ro.betterola.vehicle
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

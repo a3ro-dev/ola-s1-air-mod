@@ -1,0 +1,23 @@
+@import url(../assets/base.css);
+body{width:390px;height:844px;overflow:hidden;position:relative;font-size:15px}
+.sb{display:flex;justify-content:space-between;padding:14px 22px 0;font-size:13px;font-weight:550}
+h1{font-size:28px;line-height:1.1;padding:22px 20px 4px}
+.sub{padding:0 20px;color:var(--ink2);font-size:13px}
+.hero{display:flex;gap:20px;padding:24px 20px 0;height:256px}
+.col{width:36px;display:flex;flex-direction:column-reverse;gap:3px}
+.col i{flex:1;border:1px solid var(--hl);position:relative}
+.col i.f{background:var(--live);border-color:var(--live)}
+.col i.d{border-color:var(--live)}.col i.d canvas{position:absolute;inset:0}
+.num{display:flex;flex-direction:column;justify-content:flex-end}
+.num b{font-size:104px;line-height:.9;font-stretch:125%;font-weight:700;letter-spacing:-.03em}
+.num b small{font-size:28px;margin-left:4px}
+.num p{color:var(--ink2);margin-top:12px;font-size:15px}
+.row{display:flex;justify-content:space-between;align-items:center;height:56px;padding:0 20px;border-bottom:1px solid var(--hl)}
+.row:first-of-type{border-top:1px solid var(--hl)}
+.row span+span{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:550}
+.row i{width:6px;height:6px;display:block}
+.btn{margin:20px;height:60px;border:1px solid var(--live);border-radius:10px;position:relative;overflow:hidden;display:grid;place-items:center;font-weight:600;font-size:16px}
+.btn canvas{position:absolute;inset:0}.btn span{position:relative;text-shadow:0 0 4px #000}
+.nav{position:absolute;left:0;right:0;bottom:0;height:72px;background:var(--s);border-top:1px solid var(--hl);display:flex;justify-content:space-around;align-items:center;font-size:12px;color:var(--ink2)}
+.nav b{color:var(--ink);font-weight:600}.nav b::before{content:"";display:block;height:3px;background:var(--live);margin-bottom:8px;width:32px;margin-inline:auto}
+.tag{position:absolute;bottom:80px;right:12px;font-size:10px;color:var(--ink2)}

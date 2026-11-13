@@ -14,15 +14,15 @@ import androidx.compose.ui.unit.dp
 
 /** Roles Material has no slot for. */
 data class Tokens(
-    val amber: Color, val ok: Color, val ink2: Color, val hairline: Color, val onAmber: Color
+    val live: Color, val warn: Color, val ok: Color, val ink2: Color, val hairline: Color, val onLive: Color
 )
 
 val LocalTokens = staticCompositionLocalOf {
-    Tokens(Amber, Ok, Ink2, Hairline, OnAmber)
+    Tokens(Live, Warn, Ok, Ink2, Hairline, OnLive)
 }
 
 private val Dark = darkColorScheme(
-    primary = Amber, onPrimary = OnAmber,
+    primary = Live, onPrimary = OnLive,
     background = Ground, onBackground = Ink,
     surface = Surface, onSurface = Ink,
     surfaceVariant = Surface, onSurfaceVariant = Ink2,
@@ -32,7 +32,7 @@ private val Dark = darkColorScheme(
 )
 
 private val Light = lightColorScheme(
-    primary = AmberLight, onPrimary = Color.White,
+    primary = LiveLight, onPrimary = Color.White,
     background = GroundLight, onBackground = InkLight,
     surface = SurfaceLight, onSurface = InkLight,
     surfaceVariant = SurfaceLight, onSurfaceVariant = Ink2Light,
@@ -42,17 +42,17 @@ private val Light = lightColorScheme(
 )
 
 private val AppShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(4.dp),
-    medium = RoundedCornerShape(4.dp),
-    large = RoundedCornerShape(12.dp),
-    extraLarge = RoundedCornerShape(12.dp),
+    extraSmall = RoundedCornerShape(10.dp),
+    small = RoundedCornerShape(10.dp),
+    medium = RoundedCornerShape(10.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(20.dp),
 )
 
 @Composable
 fun BetterOlaTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val tokens = if (dark) Tokens(Amber, Ok, Ink2, Hairline, OnAmber)
-    else Tokens(AmberLight, OkLight, Ink2Light, HairlineLight, Color.White)
+    val tokens = if (dark) Tokens(Live, Warn, Ok, Ink2, Hairline, OnLive)
+    else Tokens(LiveLight, WarnLight, OkLight, Ink2Light, HairlineLight, Color.White)
     CompositionLocalProvider(LocalTokens provides tokens) {
         MaterialTheme(
             colorScheme = if (dark) Dark else Light,

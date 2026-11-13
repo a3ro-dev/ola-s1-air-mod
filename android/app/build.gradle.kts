@@ -15,8 +15,8 @@ android {
         applicationId = "dev.a3ro.betterola"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "2.0.0"
+        versionCode = 7
+        versionName = "2.1.0"
 
         vectorDrawables.useSupportLibrary = true
 
@@ -77,8 +77,11 @@ val copyHud = tasks.register<Copy>("copyHudApk") {
 }
 android.sourceSets.getByName("main").assets.srcDir(hudApk)
 tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach { dependsOn(copyHud) }
+// Lint's model writer and analyzer read the same generated assets dir, so they need the same ordering.
+tasks.matching { it.name.contains("lint", ignoreCase = true) }.configureEach { dependsOn(copyHud) }
 
 dependencies {
+    implementation(project(":vehicle"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)

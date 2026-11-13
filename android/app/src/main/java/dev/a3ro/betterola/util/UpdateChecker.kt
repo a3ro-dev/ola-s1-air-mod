@@ -39,7 +39,8 @@ object UpdateChecker {
             if (assets != null) {
                 for (i in 0 until assets.length()) {
                     val name = assets.getJSONObject(i).optString("name")
-                    if (name.endsWith(".apk", ignoreCase = true)) {
+                    // The release also carries the dash HUD APK; never offer that as an app update.
+                    if (name.endsWith(".apk", ignoreCase = true) && !name.contains("hud", ignoreCase = true)) {
                         apkUrl = assets.getJSONObject(i).optString("browser_download_url")
                         break
                     }

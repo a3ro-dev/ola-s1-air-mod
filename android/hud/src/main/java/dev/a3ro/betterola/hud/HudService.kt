@@ -1,5 +1,6 @@
 package dev.a3ro.betterola.hud
 
+import dev.a3ro.betterola.vehicle.*
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager

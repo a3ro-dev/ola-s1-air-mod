@@ -1,5 +1,6 @@
 package dev.a3ro.betterola.hud
 
+import dev.a3ro.betterola.vehicle.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -21,7 +22,9 @@ object Sim {
                 rightIndicator = phase in 14..17 && blink,
                 brake = phase in 18..19,
                 motorAmps = when (phase) { in 4..9 -> 60.0; in 10..15 -> 22.0; in 16..17 -> -25.0; else -> 0.0 },
-                mode = if (phase < 12) DriveMode.Normal else DriveMode.Sport,
+                mode = when (phase) { in 0..3 -> DriveMode.Parked; in 20..23 -> DriveMode.Reverse; in 12..19 -> DriveMode.Sport; else -> DriveMode.Normal },
+                lowBeam = phase in 4..9 || phase in 16..23,
+                highBeam = phase in 10..15,
                 derate = false,
                 sideStandDown = phase in 21..23,
                 charging = false,

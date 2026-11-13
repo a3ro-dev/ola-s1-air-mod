@@ -31,7 +31,7 @@ private enum class Scan { Idle, Scanning, Found, Missing, Connecting }
 fun ConnectScreen(manager: ScooterManager, onOpenAbout: () -> Unit, onSkip: () -> Unit) {
     val scope = rememberCoroutineScope()
     val ip by manager.scooterIp.collectAsState()
-    var scan by remember { mutableStateOf(Scan.Idle) }
+    var scan by remember { mutableStateOf(if (ip.isNotBlank()) Scan.Found else Scan.Idle) }
     var manual by remember { mutableStateOf(false) }
     var manualText by remember { mutableStateOf("") }
     var problem by remember { mutableStateOf<String?>(null) }
@@ -86,7 +86,7 @@ fun ConnectScreen(manager: ScooterManager, onOpenAbout: () -> Unit, onSkip: () -
                 }
                 Scan.Scanning -> {
                     Text("Looking on your hotspot…", style = MaterialTheme.typography.bodyLarge)
-                    LinearProgressIndicator(Modifier.fillMaxWidth(), color = tokens.amber, trackColor = tokens.hairline)
+                    LinearProgressIndicator(Modifier.fillMaxWidth(), color = tokens.live, trackColor = tokens.hairline)
                 }
                 Scan.Found -> {
                     Text("Found a scooter", style = MaterialTheme.typography.titleMedium)
@@ -96,7 +96,7 @@ fun ConnectScreen(manager: ScooterManager, onOpenAbout: () -> Unit, onSkip: () -
                 }
                 Scan.Connecting -> {
                     Text("Connecting…", style = MaterialTheme.typography.bodyLarge)
-                    LinearProgressIndicator(Modifier.fillMaxWidth(), color = tokens.amber, trackColor = tokens.hairline)
+                    LinearProgressIndicator(Modifier.fillMaxWidth(), color = tokens.live, trackColor = tokens.hairline)
                 }
             }
 
@@ -145,7 +145,7 @@ private fun Step(n: Int, title: String, body: String, active: Boolean = false) {
         Text(
             n.toString(),
             style = MaterialTheme.typography.titleMedium,
-            color = if (active) tokens.amber else tokens.ink2,
+            color = if (active) tokens.live else tokens.ink2,
             modifier = Modifier.width(32.dp)
         )
         Column {

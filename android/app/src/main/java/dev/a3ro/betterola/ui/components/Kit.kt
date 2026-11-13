@@ -56,7 +56,7 @@ fun reducedMotion(): Boolean {
 fun DitherBar(
     fraction: Float?,
     modifier: Modifier = Modifier,
-    color: Color = tokens.amber,
+    color: Color = tokens.live,
     cell: Dp = 2.dp,
     description: String,
 ) {
@@ -85,7 +85,41 @@ fun DitherBar(
     }
 }
 
-/** Flat amber action. One per screen at most; amber means "this acts". */
+/**
+ * The battery as a stack of cells, bottom up. Whole cells are full, the top cell is ordered dither,
+ * so the edge of the dither is the number. Null means unknown and draws only the empty cells.
+ */
+@Composable
+fun DitherColumn(
+    fraction: Float?,
+    modifier: Modifier = Modifier,
+    color: Color = tokens.live,
+    cells: Int = 20,
+    description: String,
+) {
+    val frame = tokens.hairline
+    Canvas(modifier.width(36.dp).semantics { contentDescription = description }) {
+        val gap = 3.dp.toPx()
+        val h = (size.height - gap * (cells - 1)) / cells
+        val level = (fraction ?: 0f) * cells
+        val px = 2.dp.toPx()
+        for (k in 0 until cells) {
+            val top = size.height - (k + 1) * h - k * gap
+            drawRect(frame, Offset(0f, top), Size(size.width, h), style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()))
+            val fill = (level - k).coerceIn(0f, 1f)
+            if (fraction == null || fill <= 0f) continue
+            val cols = (size.width / px).toInt()
+            val rows = (h / px).toInt().coerceAtLeast(1)
+            for (j in 0 until rows) for (i in 0 until cols) {
+                if (fill >= 1f || Bayer[(j % 4) * 4 + (i % 4)] / 16f < fill) {
+                    drawRect(color, Offset(i * px, top + j * px), Size(px, px))
+                }
+            }
+        }
+    }
+}
+
+/** Filled action in the live blue. One per screen at most; blue means "this acts". */
 @Composable
 fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Button(
@@ -129,14 +163,14 @@ fun HoldButton(
     val haptic = LocalHapticFeedback.current
     val still = reducedMotion()
     var done by remember { mutableStateOf(false) }
-    val amber = tokens.amber
+    val live = tokens.live
     val shape = MaterialTheme.shapes.small
 
     Box(
         modifier
             .fillMaxWidth()
             .height(60.dp)
-            .border(1.dp, amber, shape)
+            .border(1.dp, live, shape)
             .semantics(mergeDescendants = true) {
                 role = Role.Button
                 onClick(label = text) { onConfirmed(); true }
@@ -172,7 +206,7 @@ fun HoldButton(
                 val u = i / cols.toFloat()
                 if (u > f) continue
                 val d = if (done) 1f else (1f - u * 0.7f)
-                if (Bayer[(j % 4) * 4 + (i % 4)] / 16f < d) drawRect(amber, Offset(i * px, j * px), Size(px, px))
+                if (Bayer[(j % 4) * 4 + (i % 4)] / 16f < d) drawRect(live, Offset(i * px, j * px), Size(px, px))
             }
         }
         Text(
@@ -195,7 +229,10 @@ fun InfoRow(label: String, value: String, modifier: Modifier = Modifier, valueCo
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Text(value, style = MaterialTheme.typography.labelMedium, color = valueColor, textAlign = TextAlign.End)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(Modifier.size(6.dp).background(valueColor))
+                Text(value, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.End)
+            }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outline)
     }
@@ -218,6 +255,6 @@ val Mono = FontFamily.Monospace
 @Composable
 fun StatusDot(live: Boolean) {
     Box(
-        Modifier.size(6.dp).background(if (live) tokens.amber else tokens.ink2)
+        Modifier.size(6.dp).background(if (live) tokens.live else tokens.ink2)
     )
 }

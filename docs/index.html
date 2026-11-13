@@ -6,17 +6,21 @@
 <meta property="og:title" content="better-ola"><meta property="og:image" content="https://a3ro-dev.github.io/ola-s1-air-mod/assets/hero.png">
 <link rel="stylesheet" href="assets/base.css">
 <style>
-a{color:var(--amber)}
+a{color:var(--live)}
 .w{max-width:1080px;margin:0 auto;padding:0 20px}
 header{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;border-bottom:1px solid var(--hl)}
 header canvas{position:absolute;inset:0;opacity:.28}
-header .w{position:relative;padding-top:48px;padding-bottom:48px}
-.k{color:var(--amber);letter-spacing:.14em;text-transform:uppercase;font-size:13px;font-weight:550}
-h1{font-size:clamp(56px,13vw,150px);line-height:.95;margin:14px 0 20px}
-h1 b{color:var(--amber)}
+header .w{width:100%;position:relative;padding-top:48px;padding-bottom:48px}
+.k{color:var(--live);letter-spacing:.14em;text-transform:uppercase;font-size:13px;font-weight:550}
+h1{font-size:clamp(52px,7vw,100px);line-height:.95;margin:14px 0 20px}
+h1 b{color:var(--live)}
 .lede{font-size:clamp(20px,2.4vw,28px);max-width:30ch;line-height:1.35;color:var(--ink)}
-.btn{display:inline-block;margin:28px 12px 0 0;padding:16px 24px;border-radius:4px;font-weight:600;text-decoration:none;border:1px solid var(--amber)}
-.btn.p{background:var(--amber);color:#1A1206}
+.btn{display:inline-block;margin:28px 12px 0 0;padding:16px 24px;border-radius:10px;font-weight:600;text-decoration:none;border:1px solid var(--live)}
+.btn.p{background:var(--live);color:#04121F}
+header .hp{position:absolute;right:max(24px,calc(50% - 540px));top:50%;display:flex;gap:18px;transform:translateY(-50%) rotate(3deg)}
+header .hp img{width:min(17vw,220px);border-radius:26px;border:1px solid var(--hl);box-shadow:0 30px 80px #000}
+header .hp img+img{margin-top:60px}
+@media(max-width:900px){header .hp{display:none}}
 section{padding:96px 0;border-bottom:1px solid var(--hl)}
 h2{font-size:clamp(32px,5vw,52px);line-height:1.05;margin-bottom:24px}
 p{color:var(--ink2);max-width:62ch;margin-bottom:14px}
@@ -28,13 +32,13 @@ figure img.wide{width:100%;border-radius:12px;border:1px solid var(--hl);margin-
 figcaption{font-size:13px;color:var(--ink2);margin-top:8px}
 ol{list-style:none;display:grid;gap:24px;margin-top:32px;counter-reset:s}
 ol li{counter-increment:s;display:grid;grid-template-columns:48px 1fr;color:var(--ink2)}
-ol li::before{content:counter(s);color:var(--amber);font-weight:700;font-size:22px}
+ol li::before{content:counter(s);color:var(--live);font-weight:700;font-size:22px}
 ol b{display:block;color:var(--ink);font-weight:600}
-.hold{position:relative;margin-top:28px;height:64px;max-width:520px;border:1px solid var(--amber);border-radius:4px;overflow:hidden;cursor:pointer;user-select:none;touch-action:none}
+.hold{position:relative;margin-top:28px;height:64px;max-width:520px;border:1px solid var(--live);border-radius:10px;overflow:hidden;cursor:pointer;user-select:none;touch-action:none}
 .hold canvas{position:absolute;inset:0}
-.hold span{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;color:var(--amber);text-shadow:0 0 6px #000,0 0 2px #000}
-.hold.on{background:var(--amber)}
-.hold.on span{color:#1A1206;text-shadow:none}
+.hold span{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;color:var(--live);text-shadow:0 0 6px #000,0 0 2px #000}
+.hold.on{background:var(--live)}
+.hold.on span{color:#04121F;text-shadow:none}
 table{border-collapse:collapse;width:100%;font-size:15px}
 td,th{text-align:left;padding:12px 10px;border-bottom:1px solid var(--hl);color:var(--ink2)}
 th{color:var(--ink);font-weight:600}
@@ -50,8 +54,9 @@ a:focus-visible,.hold:focus-visible{outline:2px solid var(--ink);outline-offset:
 <body>
 <header>
 <canvas data-dither="x" data-from=".5" data-to="0" data-cell="4" aria-hidden="true"></canvas>
+<div class="hp" aria-hidden="true"><img src="assets/phone-connect.png" alt=""><img src="assets/phone-scooter.png" alt=""></div>
 <div class="w">
-<div class="k">Ola S1 · phone app · on-dash HUD</div>
+
 <h1 class="x">better<b>-</b>ola</h1>
 <p class="lede">No laptop. No flashing. A restart undoes it.</p>
 <a class="btn p" href="https://github.com/a3ro-dev/ola-s1-air-mod/releases">Download the APK</a>
@@ -69,13 +74,13 @@ a:focus-visible,.hold:focus-visible{outline:2px solid var(--ink);outline-offset:
 <p style="font-size:13px;margin-top:8px">That's a demo of the real button. Try holding it.</p>
 </div>
 <div class="shots r">
-<img src="assets/shot-connect.png" alt="The connect screen on a real phone" loading="lazy">
-<img src="assets/mock-scooter.png" alt="Design mockup of the Scooter tab" loading="lazy">
+<img src="assets/phone-connect.png" alt="Design render of the connect screen" loading="lazy">
+<img src="assets/phone-scooter.png" alt="Design render of the Scooter tab" loading="lazy">
 </div></div></section>
 
 <section><div class="w r">
 <h2 class="x">The HUD is a thin layer, not a new dashboard.</h2>
-<p>Speed, drive mode, charge and range sit top left in one pill, left of Android Auto's search bar. Indicators glow at the screen edges in ordered dither. The bottom edge is a power meter that goes amber on draw, green on regen and red when you brake.</p>
+<p>Speed, drive mode, charge and range sit top left in one pill, left of Android Auto's search bar. Indicators glow yellow at the screen edges in ordered dither. The bottom edge is a power meter that goes orange on draw, green on regen and red when you brake.</p>
 <p><strong>It never takes a touch.</strong> The window is not touchable and not focusable, so every tap goes to Android Auto. It's all decoded read-only from the scooter's own CAN broadcasts, and nothing in it writes to the bus.</p>
 <figure><img class="wide" src="assets/hud.png" alt="Design render of the HUD over Android Auto" loading="lazy"><figcaption>Design render, not a photo from the scooter.</figcaption></figure>
 </div></section>
