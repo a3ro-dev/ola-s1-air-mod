@@ -1,6 +1,6 @@
-package com.asjohn720.s1mods.util
+package dev.a3ro.betterola.util
 
-import com.asjohn720.s1mods.BuildConfig
+import dev.a3ro.betterola.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -27,7 +27,7 @@ object UpdateChecker {
                 connectTimeout = 10000
                 readTimeout = 10000
                 setRequestProperty("Accept", "application/vnd.github+json")
-                setRequestProperty("User-Agent", "S1Mods")
+                setRequestProperty("User-Agent", "better-ola")
             }
             if (conn.responseCode !in 200..299) return@withContext null
             val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })

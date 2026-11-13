@@ -1,4 +1,4 @@
-package com.asjohn720.s1mods.util
+package dev.a3ro.betterola.util
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

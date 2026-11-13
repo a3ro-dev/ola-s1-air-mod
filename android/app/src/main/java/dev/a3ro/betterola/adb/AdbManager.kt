@@ -1,4 +1,4 @@
-package com.asjohn720.s1mods.adb
+package dev.a3ro.betterola.adb
 
 import android.content.Context
 import dadb.AdbKeyPair
@@ -38,7 +38,7 @@ class AdbManager(private val context: Context) {
         activeDadb?.close()
         val (keyPair, _) = getOrCreateAdbKeyPair()
 
-        val cleanHost = com.asjohn720.s1mods.discovery.NetworkScanner.normalizeHost(host)
+        val cleanHost = dev.a3ro.betterola.discovery.NetworkScanner.normalizeHost(host)
 
         val dadbInstance = Dadb.create(cleanHost, port, keyPair)
         activeDadb = dadbInstance

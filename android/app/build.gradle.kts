@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.asjohn720.s1mods"
+    namespace = "dev.a3ro.betterola"
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
@@ -12,17 +12,17 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.asjohn720.s1mods"
+        applicationId = "dev.a3ro.betterola"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.2"
+        versionCode = 6
+        versionName = "2.0.0"
 
         vectorDrawables.useSupportLibrary = true
 
         // GitHub repo that holds the public Releases used for update checks.
-        buildConfigField("String", "GIT_OWNER", "\"Asjohn720\"")
-        buildConfigField("String", "GIT_REPO", "\"ola-s1-mods\"")
+        buildConfigField("String", "GIT_OWNER", "\"a3ro-dev\"")
+        buildConfigField("String", "GIT_REPO", "\"ola-s1-air-mod\"")
     }
 
     buildTypes {

@@ -1,11 +1,11 @@
-package com.asjohn720.s1mods.model
+package dev.a3ro.betterola.model
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.asjohn720.s1mods.adb.AdbManager
-import com.asjohn720.s1mods.discovery.DiscoveredScooter
-import com.asjohn720.s1mods.discovery.NetworkScanner
-import com.asjohn720.s1mods.grpc.S1GrpcClient
+import dev.a3ro.betterola.adb.AdbManager
+import dev.a3ro.betterola.discovery.DiscoveredScooter
+import dev.a3ro.betterola.discovery.NetworkScanner
+import dev.a3ro.betterola.grpc.S1GrpcClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -80,6 +80,16 @@ data class VehicleSummary(
     val supported: Boolean
 )
 
+/** What the scooter is doing right now. Null means "not reported yet", never zero. */
+data class VehicleLive(
+    val socPercent: Double? = null,
+    val rangeKm: Double? = null,
+    val driveMode: String? = null,
+    val sideStandUp: Boolean? = null,
+    val charging: Boolean? = null,
+    val lastFrameMs: Long = 0L,
+)
+
 class ScooterManager(private val context: Context) {
 
     private val adbManager = AdbManager(context)
@@ -96,6 +106,9 @@ class ScooterManager(private val context: Context) {
 
     // Last read model + MoveOS, shared by the connect card and the Setup "My Scooter" card.
     val vehicleSummary = MutableStateFlow<VehicleSummary?>(null)
+
+    val live = MutableStateFlow(VehicleLive())
+    val adbOpen = MutableStateFlow(false)
 
     private val _logs = MutableStateFlow<List<String>>(emptyList())
     val logs = _logs.asStateFlow()
@@ -185,7 +198,7 @@ class ScooterManager(private val context: Context) {
         clearLogs()
 
         log("==================================================")
-        log("       S1MODS AUTOMATED INSTALLATION WIZARD       ")
+        log("       BETTER-OLA SETUP       ")
         log("==================================================")
         log("[*] Selected apps to install: ${selectedApps.joinToString { it.displayName }}")
 
@@ -215,6 +228,7 @@ class ScooterManager(private val context: Context) {
             }
             log("[*] Connecting Kotlin ADB client over TCP Port 5555...")
             adbManager.connect(scooterIp.value, 5555)
+            adbOpen.value = true
             log("[+] ADB connected successfully as 'device'!")
 
             // Step 3: Extract and Install Chosen APKs
@@ -298,6 +312,7 @@ class ScooterManager(private val context: Context) {
         val (_, pubKey) = adbManager.getOrCreateAdbKeyPair()
         grpcClient?.unlockAdb(pubKey)
         adbManager.connect(scooterIp.value, 5555)
+        adbOpen.value = true
         true
     }
 
@@ -594,6 +609,25 @@ class ScooterManager(private val context: Context) {
         val info = ScooterInfo(uid = uid, androidVersion = android, buildId = build, model = model, scooterMode = mode)
         log("[+] Model: $model | MoveOS: $build | Android: $android | Root UID: $uid")
         info
+    }
+
+    /**
+     * Puts the head unit back to customer mode: removes the in-RAM key mounts,
+     * restores the security property and closes our ADB session. A reboot does the same.
+     */
+    suspend fun closeAdb(): Boolean = withContext(Dispatchers.IO) {
+        log("[*] Closing ADB and restoring customer mode...")
+        val client = ensureGrpc()
+        val (status, _) = client.shell(
+            "umount /data/misc/adb/adbkeymoveos3_pub_prod; umount /data/misc/adb/adb_keys; " +
+                "umount /adbkeymoveos3_pub_prod; umount /adb_keys; " +
+                "setprop persist.ola.security.scootermode cust",
+            20L
+        )
+        adbManager.disconnect()
+        adbOpen.value = false
+        log("[+] ADB closed.")
+        status in 0..1
     }
 
     fun disconnect() {

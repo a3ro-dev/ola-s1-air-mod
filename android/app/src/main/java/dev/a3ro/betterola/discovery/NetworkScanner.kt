@@ -1,4 +1,4 @@
-package com.asjohn720.s1mods.discovery
+package dev.a3ro.betterola.discovery
 
 import android.content.Context
 import android.net.ConnectivityManager

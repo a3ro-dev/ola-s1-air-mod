@@ -1,4 +1,4 @@
-package com.asjohn720.s1mods.grpc
+package dev.a3ro.betterola.grpc
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -46,7 +46,7 @@ class S1GrpcClient(
      * Resolves and normalizes the target host for OkHttpChannelBuilder.forAddress.
      */
     fun resolveTargetHost(): String {
-        var h = com.asjohn720.s1mods.discovery.NetworkScanner.normalizeHost(host)
+        var h = dev.a3ro.betterola.discovery.NetworkScanner.normalizeHost(host)
 
         // If fe80 link-local and missing scope, append scope if available
         if (h.startsWith("fe80", ignoreCase = true) && !h.contains("%") && scope != null) {

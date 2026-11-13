@@ -1,4 +1,4 @@
-package com.asjohn720.s1mods.model
+package dev.a3ro.betterola.model
 
 /**
  * Metadata for downloadable online applications in App Manager.

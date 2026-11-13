@@ -1,4 +1,4 @@
-package com.asjohn720.s1mods.grpc
+package dev.a3ro.betterola.grpc
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
