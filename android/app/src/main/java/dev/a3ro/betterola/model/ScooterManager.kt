@@ -103,6 +103,8 @@ data class VehicleLive(
     val driveMode: String? = null,
     val sideStandUp: Boolean? = null,
     val charging: Boolean? = null,
+    val unlocked: Boolean? = null,
+    val bootOpen: Boolean? = null,
     val lastFrameMs: Long = 0L,
 )
 
@@ -152,6 +154,8 @@ class ScooterManager(private val context: Context) {
                     driveMode = n.mode.label.takeIf { it.isNotEmpty() },
                     sideStandUp = n.sideStandDown?.not(),
                     charging = n.charging,
+                    unlocked = n.unlocked,
+                    bootOpen = n.bootOpen,
                     lastFrameMs = System.currentTimeMillis(),
                 )
             }
@@ -719,6 +723,28 @@ class ScooterManager(private val context: Context) {
         log("[+] ADB closed.")
         status in 0..1
     }
+
+    /**
+     * Sends a stock HMI command on CAN 0x6BC through the head unit's own `cansend`.
+     * The MCU only bridges these while the scooter is awake, so a success status here
+     * means the frame left Android, not that the vehicle acted on it.
+     */
+    suspend fun sendHmi(cmd: Int, times: Int = 1): Boolean = withContext(Dispatchers.IO) {
+        val client = ensureGrpc()
+        val hex = Integer.toHexString(cmd).uppercase().padStart(2, '0')
+        var ok = false
+        for (i in 0 until times) {
+            val (status, out) = client.shell("cansend vcan0 6BC#${hex}00000000000000", 10L)
+            ok = status in 0..1
+            log(if (ok) "[+] CAN 0x6BC command 0x$hex" else "[!] CAN 0x6BC command 0x$hex failed: $out")
+            if (i < times - 1) delay(100)
+        }
+        ok
+    }
+
+    suspend fun lockScooter(): Boolean = sendHmi(0x54)          // Lock_Now
+    suspend fun unlockScooter(): Boolean = sendHmi(0x19, 30)    // PASSCODE_AUTH, the stock loop
+    suspend fun openBoot(): Boolean = sendHmi(0x03)             // Seat_Unlock_Cmd
 
     fun disconnect() {
         stopLive()

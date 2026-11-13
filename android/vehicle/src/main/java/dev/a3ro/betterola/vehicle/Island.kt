@@ -15,6 +15,8 @@ fun message(s: HudState, stale: Boolean): Message? = when {
     s.derate -> Message("Power reduced", Level.Warn)
     s.sideStandDown == true && (s.speedKmh ?: 0) > 3 -> Message("Side stand down", Level.Fault)
     s.sideStandDown == true && s.mode != DriveMode.Parked -> Message("Raise the side stand", Level.Warn)
+    s.bootOpen == true && (s.speedKmh ?: 0) > 3 -> Message("Boot open", Level.Fault)
+    s.bootOpen == true -> Message("Boot open", Level.Info)
     s.charging -> Message("Charging", Level.Info)
     // Inferred from the lock word; verify against the real cluster text on your unit.
     s.unlocked == false -> Message("Press the power button and brake to unlock", Level.Info)

@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.IBinder
 import android.view.Gravity
 import android.view.WindowManager
+import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,6 +30,7 @@ class HudService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var view: HudView? = null
+    private var controls: ControlsBar? = null
     private var tap: Job? = null
     private var watchdog: Job? = null
     @Volatile private var lastFrame = 0L
@@ -64,6 +66,21 @@ class HudService : Service() {
         ).apply { gravity = Gravity.TOP or Gravity.START }
         getSystemService(WindowManager::class.java).addView(v, lp)
 
+        if (!preview) {
+            val bar = ControlsBar(this) { cmd -> send(cmd) }
+            controls = bar
+            val blp = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                y = (28 * resources.displayMetrics.density).toInt()
+            }
+            getSystemService(WindowManager::class.java).addView(bar, blp)
+        }
+
         if (preview) {
             v.stale = false
             tap = Sim.run(scope) { v.state = it }
@@ -73,22 +90,41 @@ class HudService : Service() {
         tap = CanTap().start(scope, onFrame = { f ->
             lastFrame = System.currentTimeMillis()
             val next = state.apply(f, lastFrame)
-            if (next !== state) { state = next; v.post { v.state = next } }
+            if (next !== state) {
+                state = next
+                v.post { v.state = next }
+                controls?.post { controls?.update(next, false) }
+            }
         }, onConnected = { up -> if (!up) v.post { v.stale = true } })
         // "stale" = no useful frame for 3 s: the scooter is asleep, or the tap dropped.
         watchdog = scope.launch {
             while (isActive) {
                 val s = System.currentTimeMillis() - lastFrame > 3_000
-                if (v.stale != s) v.stale = s
+                if (v.stale != s) {
+                    v.stale = s
+                    controls?.update(state, s)
+                }
                 delay(500)
             }
+        }
+    }
+
+    private fun send(cmd: Int) {
+        scope.launch {
+            val ok = runCatching {
+                HmiCommand.send(cmd, times = if (cmd == HmiCommand.UNLOCK) 30 else 1)
+            }.getOrDefault(false)
+            controls?.done()
+            if (!ok) Toast.makeText(this@HudService, "The scooter did not take that. Wake the screen.", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onDestroy() {
         tap?.cancel(); watchdog?.cancel(); scope.cancel()
         view?.let { runCatching { getSystemService(WindowManager::class.java).removeView(it) } }
+        controls?.let { runCatching { getSystemService(WindowManager::class.java).removeView(it) } }
         view = null
+        controls = null
         super.onDestroy()
     }
 

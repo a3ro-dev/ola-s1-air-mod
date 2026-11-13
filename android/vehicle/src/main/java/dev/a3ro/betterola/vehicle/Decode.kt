@@ -75,6 +75,7 @@ data class HudState(
     val brakeVolts: Double? = null,   // larger of front/rear lever voltage; scaled to 0..1 by the view
     val derate: Boolean = false,
     val unlocked: Boolean? = null,
+    val bootOpen: Boolean? = null,
     val charging: Boolean = false,
     val motorAmps: Double? = null,
     val live: Boolean = false,      // the tap is connected and frames are flowing
@@ -93,6 +94,8 @@ data class HudState(
                 lowBeam = bits(d, 50, 1) == 1L,
                 // Side_Stand_Status is 0 when the stand is up (see ola-s1-rea Live.sideStandUp).
                 sideStandDown = bits(d, 0, 2) != 0L,
+                // Seat_Lock_Status is 0 when the seat latch is released, same convention as the stand.
+                bootOpen = bits(d, 2, 1) == 0L,
                 rangeKm = bits(d, 24, 16).toInt(),
             )
             Ids.DISPLAY_SOC -> copy(socPercent = bits(d, 0, 16).toInt().coerceIn(0, 100))

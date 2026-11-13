@@ -30,6 +30,7 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
     val scope = rememberCoroutineScope()
     val summary by manager.vehicleSummary.collectAsState()
     val live by manager.live.collectAsState()
+    val signals by manager.signals.collectAsState()
     val ip by manager.scooterIp.collectAsState()
     val adbOpen by manager.adbOpen.collectAsState()
     val running by manager.isSetupRunning.collectAsState()
@@ -38,6 +39,8 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
     val error by manager.errorMessage.collectAsState()
     var installed by remember { mutableStateOf<Set<String>>(emptySet()) }
     var confirmSetup by remember { mutableStateOf(false) }
+    var confirmBoot by remember { mutableStateOf(false) }
+    var busy by remember { mutableStateOf<String?>(null) }
     var aaHelp by remember { mutableStateOf(false) }
     var headunit by remember { mutableStateOf<Boolean?>(null) }
 
@@ -59,6 +62,15 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
         } else {
             aaHelp = true
         }
+    }
+
+    fun vehicleCommand(what: String, call: suspend () -> Boolean) = scope.launch {
+        busy = what
+        val ok = runCatching { call() }.getOrDefault(false)
+        busy = null
+        snack.showSnackbar(
+            if (ok) "$what sent." else "The scooter did not take it. Wake the screen and try again."
+        )
     }
 
     val hasAuto = ModApp.ANDROID_AUTO.packageName in installed
@@ -121,6 +133,40 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
                 }
             }) else null
         )
+
+        Spacer(Modifier.height(24.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+        Column(Modifier.padding(horizontal = 20.dp).padding(top = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Lock, unlock, boot", style = MaterialTheme.typography.titleMedium)
+            Text(
+                when {
+                    signals.speedKmh == null -> "Waiting for the scooter's state."
+                    signals.speedKmh != 0 -> "Stop the scooter to use these."
+                    live.unlocked == true -> "Unlocked. The boot is ${if (live.bootOpen == true) "open" else "closed"}."
+                    live.unlocked == false -> "Locked."
+                    else -> "Waiting for the scooter's lock state."
+                },
+                style = MaterialTheme.typography.bodyMedium, color = tokens.ink2
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                QuietButton(
+                    "Lock", onClick = { vehicleCommand("Lock") { manager.lockScooter() } },
+                    modifier = Modifier.weight(1f),
+                    enabled = busy == null && signals.speedKmh == 0 && live.unlocked == true
+                )
+                QuietButton(
+                    "Unlock", onClick = { vehicleCommand("Unlock") { manager.unlockScooter() } },
+                    modifier = Modifier.weight(1f),
+                    enabled = busy == null && signals.speedKmh == 0 && live.unlocked == false
+                )
+                QuietButton(
+                    "Boot", onClick = { confirmBoot = true },
+                    modifier = Modifier.weight(1f),
+                    enabled = busy == null && signals.speedKmh == 0 && live.unlocked == true && live.bootOpen != true
+                )
+            }
+            if (busy != null) Text("$busy…", style = MaterialTheme.typography.bodyMedium, color = tokens.warn)
+        }
 
         Spacer(Modifier.height(28.dp))
         Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -203,6 +249,21 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
                 }) { Text("Open Android Auto settings") }
             },
             dismissButton = { TextButton(onClick = { aaHelp = false }) { Text("Not now") } }
+        )
+    }
+
+    if (confirmBoot) {
+        AlertDialog(
+            onDismissRequest = { confirmBoot = false },
+            title = { Text("Open the boot?") },
+            text = { Text("The seat latch releases. The scooter has to be parked and unlocked.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmBoot = false
+                    vehicleCommand("Boot release") { manager.openBoot() }
+                }) { Text("Open") }
+            },
+            dismissButton = { TextButton(onClick = { confirmBoot = false }) { Text("Cancel") } }
         )
     }
 }

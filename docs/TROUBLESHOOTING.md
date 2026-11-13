@@ -43,7 +43,7 @@ Setup unlocks ADB in step 2. It generates an RSA key in the app's files, pushes 
 If the step fails:
 - Reboot the scooter. This clears the old in-memory mount, then run setup again. The `serv` property stays set, and setup sets it again anyway.
 - Close every other ADB client. A laptop with `adb`, scrcpy, or Android Studio open can hold the only ADB connection. Run `adb kill-server` or unplug it, then retry.
-- Check the log line. "bind mount script returned non-zero" means the mount did not take. A failure after "Connecting Kotlin ADB client" means the key was mounted but the ADB handshake failed.
+- Check the log line. "bind mount script returned non-zero" means the mount did not take. A failure after "Connecting Kotlin ADB client" means the gRPC side worked and the ADB connect failed. Check the key mount and any other ADB client.
 - Wake the screen and keep the stand up through the whole run.
 
 If setup was interrupted after it set `serv` mode, open the Scooter tab and tap "Debug access (ADB)". That calls `ScooterManager.closeAdb()`, which unmounts the key and sets `persist.ola.security.scootermode` to `cust`. If the row fails, use the Tools root shell:
@@ -78,9 +78,25 @@ The HUD runs as a foreground service. Setup runs `pm grant dev.a3ro.betterola.hu
 
 A fresh HUD shows `--` for speed and `--%` for charge because every signal starts as null. That is normal for the first few seconds. The CAN tap reconnects with a backoff of up to 8 seconds, and the HUD marks the data stale after 3 seconds without a frame.
 
-If it stays on "Waiting for the scooter", the tap never connected. If it says "Scooter data stopped", it had frames and lost them. In both cases, wake the scooter and check that the HUD is running. The Tools tab's Live signals section shows a frame count; if that stays on "Nothing yet", the tap is the problem, not the drawing.
+If it stays on "Waiting for the scooter", the tap has not delivered a speed frame yet. If it says "Scooter data stopped", it had frames and lost them. In both cases, wake the scooter and check that the HUD is running. The Tools tab's Live signals section shows a frame count; if that stays on "Nothing yet", the tap is the problem, not the drawing.
 
-The HUD is not touchable and not focusable. It will never take a tap from Android Auto, and it will never appear as the focused window.
+The HUD is not touchable and not focusable. It will never take a tap from Android Auto, and it will never appear as the focused window. The Lock, Unlock and Boot bar is a separate window and only exists while the scooter is stopped.
+
+## Lock, unlock and boot do nothing
+
+The app and the HUD send the same command the stock dash sends: one byte on CAN `0x6BC`, written with the head unit's own `cansend`.
+
+```bash
+cansend vcan0 6BC#5400000000000000   # lock now
+cansend vcan0 6BC#1900000000000000   # passcode auth, the stock unlock loop sends this 30x
+cansend vcan0 6BC#0300000000000000   # seat latch release
+```
+
+The MCU only bridges `vcan0` to the vehicle while the scooter is awake. When it is asleep or locked, the command is dropped silently: the gRPC call still returns success and nothing happens. Wake the scooter (power button and brake), then try again.
+
+The buttons also refuse to run unless the speed is zero. Lock and boot need the scooter unlocked; unlock needs it locked. Boot asks for confirmation because the seat latch releases.
+
+If the buttons stay greyed out, the live lock state is missing. Check the Live signals section for a climbing frame count. If the frames are there but the state stays unknown, the lock word on your build may differ; send the `0x54` frame by hand from the Tools root shell to confirm the path before blaming the app.
 
 ## Android Auto has no "Start headunit server"
 
@@ -106,7 +122,7 @@ The checker takes the first `.apk` asset whose name does not contain "hud". If t
 
 ### The download finishes but the installer will not open
 
-Android blocks installs from apps that are not allowed to install unknown apps. The app opens the "Install unknown apps" screen for better-ola and stops there. Turn the permission on, come back, and run the update again. The app does not resume the install by itself.
+Android blocks installs from apps that are not allowed to install unknown apps. The app opens the "Install unknown apps" screen for better-ola and stops there. Turn the permission on, come back, and tap Update now again. The app keeps the downloaded APK, so the second tap installs it without downloading again.
 
 ### The installer refuses with a signature mismatch
 

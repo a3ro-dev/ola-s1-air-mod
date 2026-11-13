@@ -14,7 +14,7 @@ No laptop. No flashing. The ADB key lives in RAM, and the app can put the scoote
 
 **better-ola** (`android/app`) is the phone app. It connects to the scooter, installs mods, shows live battery and range, and updates itself from GitHub Releases.
 
-**better-ola HUD** (`android/hud`) is a transparent overlay for the scooter's display. It sits above Android Auto and never takes a touch. The phone app carries it and installs it during setup, so you do not install it by hand.
+**better-ola HUD** (`android/hud`) is a transparent overlay for the scooter's display. It sits above Android Auto, and its main window never takes a touch. The phone app carries it and installs it during setup, so you do not install it by hand.
 
 ---
 
@@ -26,11 +26,13 @@ Top left: speed, drive mode, state of charge and remaining range in one pill. It
 
 Screen edges: an yellow ordered-dither glow for the indicators, and a red strip for the brake. Along the bottom edge, a dithered power meter. Orange when drawing power, green when regenerating, red under braking. Easy Park hatches it.
 
-The pill widens for the one thing worth saying: side stand down, power reduced, charging, hazard lights, data stopped.
+The pill widens for the one thing worth saying: side stand down, power reduced, charging, hazard lights, boot open, data stopped.
 
-It stays out of the way. The window uses `FLAG_NOT_TOUCHABLE | FLAG_NOT_FOCUSABLE`, so every tap goes to Android Auto. It draws with ordered dither, no blur and no gradients, at about 30 fps only while something is moving. If the system animation scale is 0, it stops animating.
+It stays out of the way. The main window uses `FLAG_NOT_TOUCHABLE | FLAG_NOT_FOCUSABLE`, so every tap goes to Android Auto. It draws with ordered dither, no blur and no gradients, at about 30 fps only while something is moving. If the system animation scale is 0, it stops animating.
 
-Signals are decoded read-only from the scooter's own CAN broadcasts. Nothing in the HUD writes to the bus.
+Signals are decoded read-only from the scooter's own CAN broadcasts. The only frames the HUD sends are the stock HMI commands behind its Lock, Unlock and Boot buttons, and that bar only appears while the scooter is stopped.
+
+The buttons live in their own small touchable window at the bottom, so they never make the main overlay swallow a tap. Lock and Boot need the scooter unlocked, Unlock needs it locked, and Boot asks for confirmation. All three are refused while the speed is not zero, and the scooter's own MCU ignores commands when it is asleep.
 
 ---
 
@@ -43,7 +45,8 @@ Signals are decoded read-only from the scooter's own CAN broadcasts. Nothing in 
 
 Also in the app:
 
-- Live battery, range, mode, side stand and charging, read from a listen-only CAN tap.
+- Live battery, range, mode, side stand, charging, lock and boot state, read from a listen-only CAN tap.
+- Lock, unlock and open the boot from the Scooter tab, using the same CAN commands the stock dash uses. They only work while the scooter is stopped and awake.
 - Apps: install, reinstall or remove the bundled mods, or sideload any APK.
 - Tools: dash screenshot, live signals, system info, settings shortcuts, a root shell, and a check for updates button.
 - **OTA updates:** on launch, and on demand from Tools, the app asks GitHub for the latest release. If it is newer, it downloads the APK and hands it to the system installer. Your saved scooter and settings stay.
@@ -96,7 +99,7 @@ No. The scooter ships with a diagnostics daemon that runs as root on port 50005.
 I cannot answer for Ola. What I can say is that nothing is written to a partition. The ADB key is bind-mounted in RAM. Setup does switch the scooter's security property to service mode so the app can reach it; the **Debug access (ADB)** row on the Scooter tab sets it back to customer mode.
 
 **Can it unlock the scooter?**
-No, and the app does not pretend to. The head unit can ask the vehicle to unlock, but the VCU decides and answers on the CAN bus. The only remote unlock that works is Ola's own app through the cloud. See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+Yes, while the scooter is awake and stopped. The dash's own unlock is a CAN command on `0x6BC` (`PASSCODE_AUTH`). The app and the HUD send the same command, 30 times over 3 seconds, the way the stock HMI does. The VCU still decides: if the scooter is asleep, the head unit's MCU drops the frames and nothing happens. Lock and boot release use the same channel (`Lock_Now`, `Seat_Unlock_Cmd`). This is not a bypass, it is the command the dash already sends.
 
 **Will the HUD block Android Auto?**
 No. The overlay window is not touchable and not focusable. Taps pass through to Android Auto. It also has no full-screen scrim.
@@ -132,7 +135,7 @@ The full FAQ with commands and log tags is in [docs/TROUBLESHOOTING.md](docs/TRO
 - ADB is authorised with an RSA key bind-mounted **in RAM**. No partition is written.
 - Setup switches the scooter to service mode so the app can reach it over the network. The **Debug access (ADB)** row puts it back to customer mode. A reboot clears the key mount but not that property, so close it when you are done.
 - The app does not touch the power manager or the auto-lock. The scooter still locks itself as designed.
-- The HUD only listens to CAN frames. It sends nothing.
+- The HUD listens to CAN for its numbers. Its only writes are the stock Lock, Unlock and Boot commands you press, on the dash's own `0x6BC` channel, and only while the scooter is stopped.
 - The dash and its physical warnings remain the authority. Treat anything here as a convenience that can be late, wrong or blank, and glance only while riding.
 
 `ola.py` is the same root channel from a computer, for when you want a shell:

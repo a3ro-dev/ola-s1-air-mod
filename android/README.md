@@ -10,11 +10,11 @@ The phone companion. Compose UI, scooter discovery, the root gRPC client, the em
 
 ### hud
 
-The dash overlay. A foreground service with one custom `View`, no Compose. Package `dev.a3ro.betterola.hud`. It draws over Android Auto and other apps, and it never takes a touch or focus.
+The dash overlay. A foreground service with one custom `View`, no Compose. Package `dev.a3ro.betterola.hud`. It draws over Android Auto and other apps, and the main window never takes a touch or focus. A second, small window holds the parked-only Lock, Unlock and Boot buttons.
 
 ### vehicle
 
-An Android library used by both. `CanTap` opens the read-only CAN stream, `Decode` turns frames into `HudState`, and `Island` picks the one message the HUD shows. There is no code path that writes a CAN frame.
+An Android library used by both. `CanTap` opens the read-only CAN stream, `Decode` turns frames into `HudState`, and `Island` picks the one message the HUD shows. `HmiCommand` is the only writer: it sends the stock Lock, Unlock and Boot bytes on `0x6BC` through the head unit's own `cansend`, and only when a button asks for it.
 
 ## Ports
 
@@ -24,7 +24,7 @@ An Android library used by both. `CanTap` opens the read-only CAN stream, `Decod
 | 5555 | scooter | ADB. Available after setup bind-mounts the phone's public key in RAM. |
 | 5277 | phone | Android Auto headunit server. Loopback only. |
 
-Port 50005 is the one the app is built around. The phone connects to it over the hotspot. The HUD connects to `127.0.0.1:50005` on the scooter itself.
+Port 50005 is the one the app is built around. The phone connects to it over the same Wi-Fi or hotspot as the scooter. The HUD connects to `127.0.0.1:50005` on the scooter itself.
 
 Port 5555 is used for installs and shell commands. The key mount is in memory, so a scooter reboot clears it and closes ADB. A reboot does not restore customer mode, because `persist.ola.security.scootermode` stays `serv`. The app's "Debug access (ADB)" row calls `ScooterManager.closeAdb()` to unmount the key and set the property back to `cust`.
 
@@ -47,7 +47,7 @@ To work on the HUD alone, `./gradlew :hud:assembleDebug` is enough.
 
 ## Release and OTA
 
-The app and the HUD are both versioned `2.1.0` (app versionCode 7, HUD versionCode 2). The release tag is `v2.1.0`.
+The app and the HUD are both versioned `2.1.0` (app versionCode 8, HUD versionCode 3). The release tag is `v2.1.0`.
 
 The phone app reads `https://api.github.com/repos/a3ro-dev/ola-s1-air-mod/releases/latest` on launch and from Tools. It picks the first `.apk` asset whose name does not contain `hud`, so both APKs can live in one release. If there is no APK asset, the update button opens the release page.
 
@@ -58,7 +58,7 @@ Release builds are signed with the debug key. That is fine for sideloading and f
 - The window uses `FLAG_NOT_TOUCHABLE | FLAG_NOT_FOCUSABLE`, plus the layout flags. Taps pass through to Android Auto.
 - Glows and meters use a 4x4 ordered dither. No blur and no gradients.
 - It targets about 30 fps for the slow breathing animation and the indicator and message motion. When the system animator scale is 0, it stops posting frames and snaps state changes.
-- The CAN tap is read-only. `CanTap` opens `CanDumpStream` and has no write path.
+- The CAN tap is read-only. `CanTap` opens `CanDumpStream` and has no write path. The only writes are `HmiCommand`'s `0x6BC` commands, from the control bar while the scooter is stopped.
 - The pill sits at the top left because Android Auto owns the top centre.
 - The overlay needs `SYSTEM_ALERT_WINDOW`. `BootReceiver` restarts the service after a reboot only if that permission is still granted.
 

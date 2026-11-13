@@ -5,15 +5,17 @@
 The release where this stopped being a setup wizard and became a thing you use on every ride.
 
 **The dash HUD**
-- New overlay app (`dev.a3ro.betterola.hud`) that draws above Android Auto and never takes a touch. Speed, mode, charge and range sit in one pill at the top left, clear of the Maps search bar and the app tabs.
+- New overlay app (`dev.a3ro.betterola.hud`) that draws above Android Auto, with a main window that never takes a touch. Speed, mode, charge and range sit in one pill at the top left, clear of the Maps search bar and the app tabs.
 - Ordered-dither indicator glow, a red brake strip, and a power/regen meter along the bottom edge. No blur, no gradients, and the animation stops when the system animation scale is 0.
-- The pill widens for one message at a time: side stand down, power reduced, charging, hazards, or the CAN data stopped.
-- Read-only CAN tap. The HUD has no write path.
+- The pill widens for one message at a time: side stand down, power reduced, charging, hazards, boot open, or the CAN data stopped.
+- Lock, Unlock and Boot buttons in a small separate window along the bottom. It only appears while the scooter is stopped, so it cannot take a tap on the move.
+- CAN reads stay read-only. The only writes are the stock `0x6BC` commands behind those three buttons.
 
 **The phone app**
 - The scooter is remembered. Open the app and it reconnects; the scan screen only shows up when there is nothing saved or the scooter is unreachable.
 - OTA updates from GitHub Releases, on launch and from Tools. The app downloads the APK and opens the system installer. The HUD APK in the same release is ignored by the update checker.
 - New Android Auto link row on the Scooter tab. It watches the headunit server on port 5277 and walks you through starting it when it is off.
+- Lock, unlock and boot release from the Scooter tab, using the dash's own `0x6BC` CAN commands. All three are refused unless the scooter is stopped; lock and boot need it unlocked, unlock needs it locked.
 - The app now launches OpenHeadUnit by its real activity instead of a monkey intent.
 - Activity log and check-for-updates live in Tools.
 
