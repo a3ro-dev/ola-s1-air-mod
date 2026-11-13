@@ -1,3 +1,5 @@
+> Superseded 2026-11-13 by [DESIGN.md](../../DESIGN.md): the amber tell-tale world below was replaced by a dither-ui palette world. Kept as history.
+
 # better-ola · phone app direction
 
 ## Brief (from the owner, 13 Nov 2026)
