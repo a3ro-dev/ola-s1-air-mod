@@ -16,7 +16,7 @@ import dev.a3ro.betterola.ui.theme.ArchivoWide
 import dev.a3ro.betterola.ui.theme.tokens
 import kotlinx.coroutines.launch
 
-private const val HUD_PACKAGE = "dev.a3ro.betterola.hud"
+private val HUD_PACKAGE = ModApp.HUD.packageName
 
 @Composable
 fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: SnackbarHostState) {
@@ -99,11 +99,11 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
                     )
                     QuietButton("Show details", onOpenLog)
                 }
-                !hasAuto || !hasBall -> {
+                !hasAuto || !hasBall || !hasHud -> {
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium) }
-                    PrimaryButton("Set up Android Auto on the dash", onClick = { confirmSetup = true })
+                    PrimaryButton(if (hasAuto && hasBall) "Add the dash HUD" else "Set up Android Auto and the HUD", onClick = { confirmSetup = true })
                     Text(
-                        "Installs Android Auto and the floating buttons. Takes a minute or two.",
+                        "Installs Android Auto, the floating buttons and the HUD. Takes a minute or two.",
                         style = MaterialTheme.typography.bodyMedium, color = tokens.ink2
                     )
                 }
@@ -138,7 +138,7 @@ fun ScooterScreen(manager: ScooterManager, onOpenLog: () -> Unit, snack: Snackba
             confirmButton = {
                 TextButton(onClick = {
                     confirmSetup = false
-                    scope.launch { manager.runFullSetup(setOf(ModApp.BALLS, ModApp.ANDROID_AUTO)) }
+                    scope.launch { manager.runFullSetup(setOf(ModApp.BALLS, ModApp.ANDROID_AUTO, ModApp.HUD)) }
                 }) { Text("Start setup") }
             },
             dismissButton = { TextButton(onClick = { confirmSetup = false }) { Text("Not now") } }

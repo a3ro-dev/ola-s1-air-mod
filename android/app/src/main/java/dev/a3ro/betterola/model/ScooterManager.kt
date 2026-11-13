@@ -29,6 +29,14 @@ enum class ModApp(
     val isMandatory: Boolean,
     val description: String
 ) {
+    HUD(
+        id = "hud",
+        displayName = "Dash HUD",
+        assetFileName = "betterola-hud.apk",
+        packageName = "dev.a3ro.betterola.hud",
+        isMandatory = false,
+        description = "Indicators, speed, mode and warnings over Android Auto"
+    ),
     BALLS(
         id = "balls",
         displayName = "Balls Navigation",
@@ -256,6 +264,11 @@ class ScooterManager(private val context: Context) {
                 log("[+] Balls Navigation permissions granted & initialized.")
             }
 
+            if (selectedApps.contains(ModApp.HUD)) {
+                adbManager.grantHudPermissions()
+                log("[+] Dash HUD allowed to draw over other apps.")
+            }
+
             if (selectedApps.contains(ModApp.ANDROID_AUTO)) {
                 log("[*] Configuring Android Auto permissions (Microphone, Location, Overlay, Storage)...")
                 adbManager.grantAndroidAutoPermissions()
@@ -368,6 +381,10 @@ class ScooterManager(private val context: Context) {
                 log("[*] Configuring Balls Navigation overlay & permissions...")
                 adbManager.grantBallPermissions()
                 log("[+] Balls permissions configured.")
+            }
+            ModApp.HUD -> {
+                log("[*] Allowing the HUD overlay...")
+                adbManager.grantHudPermissions()
             }
             ModApp.ANDROID_AUTO -> {
                 log("[*] Configuring Android Auto permissions...")

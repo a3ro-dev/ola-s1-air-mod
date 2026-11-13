@@ -58,7 +58,7 @@ fun AppsScreen(manager: ScooterManager, snack: SnackbarHostState) {
 
     val rows = remember {
         listOf(
-            ModApp.ANDROID_AUTO, ModApp.BALLS, ModApp.MUSIC
+            ModApp.ANDROID_AUTO, ModApp.HUD, ModApp.BALLS, ModApp.MUSIC
         ).map { app ->
             Row(app.id, app.displayName, app.description, app.packageName) { manager.installSingleModApp(app) }
         } + OnlineAppCatalog.apps.map { a ->

@@ -141,6 +141,15 @@ class AdbManager(private val context: Context) {
         client.shell("pm grant $pkg android.permission.BLUETOOTH_SCAN")
     }
 
+    /** Lets the HUD draw over other apps and start itself, then launches it once. */
+    suspend fun grantHudPermissions() = withContext(Dispatchers.IO) {
+        val client = activeDadb ?: throw IllegalStateException("ADB not connected")
+        val pkg = "dev.a3ro.betterola.hud"
+        client.shell("appops set $pkg SYSTEM_ALERT_WINDOW allow")
+        client.shell("pm grant $pkg android.permission.POST_NOTIFICATIONS")
+        client.shell("am start -n $pkg/.HudActivity")
+    }
+
     fun disconnect() {
         try {
             activeDadb?.close()

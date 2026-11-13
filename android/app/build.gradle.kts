@@ -67,6 +67,17 @@ android {
     }
 }
 
+// The dash HUD is built first and bundled into this app's assets so setup can install it offline.
+val hudApk = file("build/generated/hudAssets")
+val copyHud = tasks.register<Copy>("copyHudApk") {
+    dependsOn(":hud:assembleDebug")
+    from(project(":hud").layout.buildDirectory.file("outputs/apk/debug/hud-debug.apk"))
+    rename { "betterola-hud.apk" }
+    into(hudApk)
+}
+android.sourceSets.getByName("main").assets.srcDir(hudApk)
+tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach { dependsOn(copyHud) }
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
