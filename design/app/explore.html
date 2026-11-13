@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>better-ola · explore</title>
+<link rel="stylesheet" href="file:///C:/Users/akshat/.claude/skills/app-designer/assets/device.css">
+<style>
+@font-face { font-family: Archivo; src: url("file:///D:/ext-src/fonts/Archivo.ttf"); font-weight: 100 900; font-stretch: 62% 125%; }
+@font-face { font-family: JBM; src: url("file:///D:/ext-src/fonts/JetBrainsMono.ttf"); font-weight: 100 800; }
+@font-face { font-family: Nunito; src: url("file:///D:/ext-src/fonts/Nunito.ttf"); font-weight: 200 1000; }
+
+body { background: #777; }
+.screen { font-feature-settings: "tnum"; }
+
+/* Android status bar + gesture pill, drawn by hand (device.css chrome is iOS) */
+.sb { position: absolute; top: 0; left: 0; right: 0; height: 36px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font: 500 14px/1 Archivo, sans-serif; z-index: 5; }
+.sb svg { height: 14px; }
+.pill { position: absolute; bottom: 8px; left: 50%; width: 108px; height: 4px; margin-left: -54px; border-radius: 2px; z-index: 5; }
+
+/* ---------- A: tell-tale ---------- */
+.a { background: #0F0E0C; color: #F2EEE6; font-family: Archivo, sans-serif; }
+.a .sb { color: #F2EEE6; } .a .pill { background: #F2EEE6; opacity: .8; }
+.a .wrap { position: absolute; inset: 36px 0 0 0; display: flex; flex-direction: column; }
+.a header { padding: 18px 20px 0; }
+.a h1 { margin: 0; font: 650 28px/32px Archivo; font-stretch: 125%; letter-spacing: -0.02em; }
+.a .meta { margin-top: 6px; font: 450 13px/18px Archivo; color: #B5AE9F; display: flex; gap: 10px; align-items: center; }
+.a .live { display: inline-flex; align-items: center; gap: 6px; color: #FFB021; font-weight: 550; }
+.a .live i { width: 6px; height: 6px; background: #FFB021; display: inline-block; }
+.a .hero { padding: 40px 20px 0; }
+.a .pct { font: 700 112px/96px Archivo; font-stretch: 125%; letter-spacing: -0.04em; }
+.a .pct small { font-size: 40px; letter-spacing: -0.02em; margin-left: 4px; }
+.a .bar { margin-top: 18px; height: 28px; border: 1px solid #3A362F; position: relative; }
+.a .bar canvas { position: absolute; inset: 2px; width: calc(100% - 4px); height: calc(100% - 4px); }
+.a .sub { margin-top: 12px; font: 400 15px/22px Archivo; color: #B5AE9F; }
+.a .sub b { color: #F2EEE6; font-weight: 600; }
+.a .rows { margin-top: 36px; border-top: 1px solid #2C2924; }
+.a .row { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; min-height: 56px; border-bottom: 1px solid #2C2924; font: 500 15px/20px Archivo; }
+.a .row span:last-child { color: #B5AE9F; font: 450 13px/18px Archivo; }
+.a .row .ok { color: #9BD17A !important; }
+.a .act { margin: auto 20px 18px; }
+.a .hold { position: relative; height: 60px; background: #1A1815; border: 1px solid #FFB021; color: #FFB021; display: flex; align-items: center; justify-content: center; font: 600 15px/1 Archivo; overflow: hidden; }
+.a .hold canvas { position: absolute; left: 0; top: 0; bottom: 0; width: 38%; height: 100%; }
+.a .hold span { position: relative; }
+.a nav { display: flex; height: 80px; background: #1A1815; border-top: 1px solid #2C2924; padding-bottom: 16px; }
+.a nav a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: 550 12px/16px Archivo; color: #B5AE9F; }
+.a nav a.on { color: #F2EEE6; }
+.a nav a.on .ind { background: #2C2924; }
+.a nav .ind { width: 56px; height: 30px; border-radius: 15px; display: flex; align-items: center; justify-content: center; }
+.a nav svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+/* ---------- B: job card ---------- */
+.b { background: #E4E7E3; color: #151714; font-family: JBM, monospace; }
+.b .sb { color: #151714; } .b .pill { background: #151714; opacity: .6; }
+.b .wrap { position: absolute; inset: 36px 0 0 0; padding: 20px 18px; display: flex; flex-direction: column; }
+.b .card { background: #F4F5F1; border: 1.5px solid #151714; padding: 16px; position: relative; flex: 1; display: flex; flex-direction: column; }
+.b .no { font: 500 12px/16px JBM; display: flex; justify-content: space-between; border-bottom: 1.5px solid #151714; padding-bottom: 10px; }
+.b h1 { font: 700 26px/30px JBM; margin: 14px 0 4px; letter-spacing: -0.03em; }
+.b .f { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid #9DA39A; padding: 10px 0; font: 400 14px/20px JBM; }
+.b .f span:first-child { color: #4A5048; font-size: 12px; }
+.b .big { font: 700 80px/80px JBM; letter-spacing: -0.06em; margin: 18px 0 6px; }
+.b .stamp { position: absolute; right: 18px; top: 74px; transform: rotate(-8deg); border: 2.5px solid #C2261B; color: #C2261B; padding: 6px 10px; font: 800 15px/1 JBM; letter-spacing: .06em; }
+.b .go { margin-top: auto; background: #151714; color: #F4F5F1; height: 56px; display: flex; align-items: center; justify-content: center; font: 600 14px JBM; }
+.b nav { display: flex; justify-content: space-around; padding: 14px 0 6px; font: 600 12px JBM; }
+.b nav a.on { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- C: monsoon ---------- */
+.c { background: #0F4D45; color: #EAF6F1; font-family: Nunito, sans-serif; overflow: hidden; }
+.c .sb { color: #EAF6F1; } .c .pill { background: #EAF6F1; opacity: .8; }
+.c .rain { position: absolute; inset: 0; background: repeating-linear-gradient(105deg, transparent 0 22px, rgba(234,246,241,.07) 22px 24px); }
+.c .wrap { position: absolute; inset: 36px 0 0 0; padding: 22px 22px; display: flex; flex-direction: column; }
+.c h1 { margin: 0; font: 800 30px/34px Nunito; }
+.c .meta { color: #B9DDD3; font: 600 14px/20px Nunito; margin-top: 4px; }
+.c .blob { margin: 36px 0 0; background: #EAF6F1; color: #0F4D45; border-radius: 32px; padding: 26px 24px; }
+.c .blob .n { font: 900 96px/90px Nunito; letter-spacing: -0.04em; }
+.c .blob p { margin: 8px 0 0; font: 700 16px/22px Nunito; }
+.c .chips { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.c .chip { border: 1.5px solid #B9DDD3; border-radius: 20px; padding: 8px 14px; font: 700 14px Nunito; }
+.c .go { margin-top: auto; background: #F06BA8; color: #2A0716; border-radius: 30px; height: 60px; display: flex; align-items: center; justify-content: center; font: 800 16px Nunito; }
+.c nav { display: flex; justify-content: space-around; padding: 16px 0 10px; font: 800 13px Nunito; color: #B9DDD3; }
+.c nav a.on { color: #FFF; }
+</style>
+</head>
+<body>
+
+<!-- A · tell-tale -->
+<section class="screen a" data-name="a-telltale" data-chrome="none">
+  <div class="sb"><span>18:52</span><svg viewBox="0 0 60 14" fill="#F2EEE6"><rect x="0" y="6" width="3" height="8"/><rect x="5" y="4" width="3" height="10"/><rect x="10" y="2" width="3" height="12"/><rect x="15" y="0" width="3" height="14"/><rect x="34" y="2" width="22" height="11" rx="2" fill="none" stroke="#F2EEE6" stroke-width="1.5"/><rect x="36" y="4" width="13" height="7"/><rect x="57" y="5" width="2" height="5"/></svg></div>
+  <div class="wrap">
+    <header>
+      <h1>S1 Pro Gen 2</h1>
+      <div class="meta"><span class="live"><i></i>Live</span><span>MoveOS 5.1.0</span><span>On your hotspot</span></div>
+    </header>
+    <div class="hero">
+      <div class="pct">64<small>%</small></div>
+      <div class="bar"><canvas class="dither" data-level="0.64" data-color="#FFB021" data-fill="0.64"></canvas></div>
+      <div class="sub"><b>71 km</b> in Normal · Parked, stand down</div>
+    </div>
+    <div class="rows">
+      <div class="row"><span>HUD</span><span>Running · 0.2 s ago</span></div>
+      <div class="row"><span>Android Auto</span><span>Installed, not open</span></div>
+      <div class="row"><span>ADB</span><span class="ok">Closed</span></div>
+    </div>
+    <div class="act"><div class="hold"><canvas class="dither" data-level="1" data-color="#FFB021" data-ramp="1"></canvas><span>Hold to open Android Auto on the dash</span></div></div>
+    <nav>
+      <a class="on"><span class="ind"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 12l4-3"/></svg></span>Scooter</a>
+      <a><span class="ind"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg></span>Apps</a>
+      <a><span class="ind"><svg viewBox="0 0 24 24"><path d="M14 6a4 4 0 0 0 5 5l-8 8-3-3 8-8a4 4 0 0 0-2-2z"/></svg></span>Tools</a>
+    </nav>
+  </div>
+  <div class="pill"></div>
+</section>
+
+<!-- B · job card -->
+<section class="screen b" data-name="b-jobcard" data-chrome="none">
+  <div class="sb"><span>18:52</span><span>4G ▮</span></div>
+  <div class="wrap">
+    <div class="card">
+      <div class="no"><span>JOB 0413</span><span>13 NOV 26</span></div>
+      <h1>S1 Pro Gen 2</h1>
+      <div class="stamp">LIVE</div>
+      <div class="big">64%</div>
+      <div class="f"><span>range</span><span>71 km, Normal</span></div>
+      <div class="f"><span>state</span><span>Parked, stand down</span></div>
+      <div class="f"><span>hud</span><span>Running</span></div>
+      <div class="f"><span>android auto</span><span>Installed</span></div>
+      <div class="f"><span>adb</span><span>Closed</span></div>
+      <div class="go">Open Android Auto on the dash</div>
+    </div>
+    <nav><a class="on">Scooter</a><a>Apps</a><a>Tools</a></nav>
+  </div>
+  <div class="pill"></div>
+</section>
+
+<!-- C · monsoon -->
+<section class="screen c" data-name="c-monsoon" data-chrome="none">
+  <div class="rain"></div>
+  <div class="sb"><span>18:52</span><span>4G</span></div>
+  <div class="wrap">
+    <h1>S1 Pro Gen 2</h1>
+    <div class="meta">MoveOS 5.1.0 · on your hotspot</div>
+    <div class="blob"><div class="n">64%</div><p>71 km left in Normal. Parked with the stand down.</p></div>
+    <div class="chips"><span class="chip">HUD running</span><span class="chip">Android Auto ready</span><span class="chip">ADB closed</span></div>
+    <div class="go">Open Android Auto on the dash</div>
+    <nav><a class="on">Scooter</a><a>Apps</a><a>Tools</a></nav>
+  </div>
+  <div class="pill"></div>
+</section>
+
+<script>
+// 4x4 Bayer ordered dither. level = density, ramp = density falls off left to right.
+const B = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+document.querySelectorAll("canvas.dither").forEach(c => {
+  const r = c.getBoundingClientRect(), s = 3, cell = 2;
+  c.width = r.width * s; c.height = r.height * s;
+  const x = c.getContext("2d"); x.fillStyle = c.dataset.color;
+  const px = cell * s, cols = Math.ceil(c.width / px), rows = Math.ceil(c.height / px);
+  const fill = parseFloat(c.dataset.fill || 1), ramp = c.dataset.ramp;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const u = i / cols; if (u > fill) continue;
+    let d = parseFloat(c.dataset.level);
+    if (ramp) d = 1 - u * 0.9;
+    else d = u > fill - 0.12 ? (fill - u) / 0.12 : 1; // dithered leading edge
+    if (B[(j % 4) * 4 + (i % 4)] / 16 < d) x.fillRect(i * px, j * px, px, px);
+  }
+});
+</script>
+<script src="file:///C:/Users/akshat/.claude/skills/app-designer/assets/device.js"></script>
+</body>
+</html>

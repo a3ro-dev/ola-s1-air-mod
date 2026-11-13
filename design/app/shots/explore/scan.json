@@ -1,0 +1,104 @@
+[
+  {
+    "name": "a-telltale",
+    "fails": [
+      "Text on an image/illustration fails contrast over part of its ground (1.00:1, needs 4.5): \"Hold to open Android Auto on the dash\". Add a scrim, move it, or change the ink."
+    ],
+    "warns": [],
+    "facts": {
+      "fonts": {
+        "Archivo": 19
+      },
+      "sizes": [
+        112,
+        40,
+        28,
+        15,
+        14,
+        13,
+        12
+      ],
+      "weights": [
+        "400",
+        "450",
+        "500",
+        "550",
+        "600",
+        "650",
+        "700"
+      ],
+      "leftEdges": 4,
+      "accentHues": [
+        48,
+        96
+      ],
+      "cards": 0
+    }
+  },
+  {
+    "name": "b-jobcard",
+    "fails": [],
+    "warns": [
+      "Tap targets under 44pt (add padding, or data-hit-expanded if the hit area is larger than the drawing): 29x16 \"Apps\"; 36x16 \"Tools\""
+    ],
+    "facts": {
+      "fonts": {
+        "Archivo": 2,
+        "JBM": 19
+      },
+      "sizes": [
+        80,
+        26,
+        15,
+        14,
+        12
+      ],
+      "weights": [
+        "400",
+        "500",
+        "600",
+        "700",
+        "800"
+      ],
+      "leftEdges": 3,
+      "accentHues": [
+        0
+      ],
+      "cards": 0
+    }
+  },
+  {
+    "name": "c-monsoon",
+    "fails": [],
+    "warns": [
+      "Lines of text touching vertically (ink under 2pt apart): \"64%\" / \"71 km left in Normal. Parked w\"",
+      "Tap targets under 44pt (add padding, or data-hit-expanded if the hit area is larger than the drawing): 32x18 \"Apps\"; 33x18 \"Tools\""
+    ],
+    "facts": {
+      "fonts": {
+        "Archivo": 2,
+        "Nunito": 11
+      },
+      "sizes": [
+        96,
+        30,
+        16,
+        14,
+        13
+      ],
+      "weights": [
+        "500",
+        "600",
+        "700",
+        "800",
+        "900"
+      ],
+      "leftEdges": 3,
+      "accentHues": [
+        168,
+        336
+      ],
+      "cards": 2
+    }
+  }
+]
