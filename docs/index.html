@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>better-ola · phone app and on-dash HUD for the Ola S1</title>
-<meta name="description" content="A phone app and a read-only HUD for the Ola S1's Android head unit. No laptop, no flashing, a restart undoes it.">
+<meta name="description" content="A phone app and an on-dash HUD for the Ola S1's Android head unit. No laptop, no flashing, a restart undoes it.">
 <meta property="og:title" content="better-ola"><meta property="og:image" content="https://a3ro-dev.github.io/ola-s1-air-mod/assets/hero.png">
 <link rel="stylesheet" href="assets/base.css">
 <style>
@@ -81,7 +81,7 @@ a:focus-visible,.hold:focus-visible{outline:2px solid var(--ink);outline-offset:
 <section><div class="w r">
 <h2 class="x">The HUD is a thin layer, not a new dashboard.</h2>
 <p>Speed, drive mode, charge and range sit top left in one pill, left of Android Auto's search bar. Indicators glow yellow at the screen edges in ordered dither. The bottom edge is a power meter that goes orange on draw, green on regen and red when you brake.</p>
-<p><strong>It never takes a touch.</strong> The window is not touchable and not focusable, so every tap goes to Android Auto. It's all decoded read-only from the scooter's own CAN broadcasts, and nothing in it writes to the bus.</p>
+<p><strong>The main window never takes a touch.</strong> It is not touchable and not focusable, so every tap goes to Android Auto. The numbers are decoded read-only from the scooter's own CAN broadcasts. The only frames it sends are the stock lock, unlock and boot commands, from a small bar that only appears while the scooter is stopped.</p>
 <figure><img class="wide" src="assets/hud.png" alt="Design render of the HUD over Android Auto" loading="lazy"><figcaption>Design render, not a photo from the scooter.</figcaption></figure>
 </div></section>
 
