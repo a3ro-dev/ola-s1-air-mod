@@ -71,3 +71,18 @@ To the maximum extent permitted by law, the authors and contributors are not lia
 ## If you are not the owner
 
 Do not use this on a leased, rented, financed, shared, or employer owned vehicle without the owner's written permission. Do not use it on a vehicle you do not have the right to modify.
+
+## Terms of use
+
+By downloading, installing or running any part of better-ola you agree to the following. If you do not agree, do not use it.
+
+1. **Your vehicle, your decision.** You alone decide to modify your head unit. You confirm you own it or have the owner's written permission, and that you are legally allowed to do this where you live.
+2. **You accept the risk.** You accept all risk of loss, damage, injury, death, voided warranty, refused service, bricked hardware, lost data, fines and any other consequence, to you or to anyone else, that comes from using this software. To the fullest extent the law allows, you release the author and contributors from claims arising from that use.
+3. **You cover what you cause.** If you share, fork, resell or bundle this software, or use it on someone else's vehicle, and someone makes a claim because of that, it is your responsibility and not the author's.
+4. **Follow the law.** Road, vehicle, telecom and consumer rules differ by place. Using a screen while riding may be illegal where you are. Following those rules is on you.
+5. **"Tested" is not a guarantee.** A model marked "Tested" worked once on the maintainer's own scooter, on the firmware it had at the time. Firmware updates can break it with no warning.
+6. **No support, no uptime.** There is no service, no support obligation and no promise of updates, fixes or availability. The over-the-air updater may stop working at any time.
+7. **Some rights cannot be waived.** Where a law gives you rights that cannot be excluded, such as certain consumer protections, those rights stay. Everything else in this document still applies as far as the law allows.
+8. **Takedown requests.** A rights holder who objects to anything in this repository can open an issue or contact the maintainer through the GitHub profile `a3ro-dev`. It will be looked at promptly and removed or changed where the objection is valid.
+
+I am not a lawyer and this is not legal advice. Have a qualified professional in your jurisdiction look at this before relying on it.
