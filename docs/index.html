@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>better-ola · phone app and on-dash HUD for the Ola S1</title>
+<meta name="description" content="A phone app and a read-only HUD for the Ola S1's Android head unit. No laptop, no flashing, a restart undoes it.">
+<meta property="og:title" content="better-ola"><meta property="og:image" content="https://a3ro-dev.github.io/ola-s1-air-mod/assets/hero.png">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+a{color:var(--amber)}
+.w{max-width:1080px;margin:0 auto;padding:0 20px}
+header{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;border-bottom:1px solid var(--hl)}
+header canvas{position:absolute;inset:0;opacity:.28}
+header .w{position:relative;padding-top:48px;padding-bottom:48px}
+.k{color:var(--amber);letter-spacing:.14em;text-transform:uppercase;font-size:13px;font-weight:550}
+h1{font-size:clamp(56px,13vw,150px);line-height:.95;margin:14px 0 20px}
+h1 b{color:var(--amber)}
+.lede{font-size:clamp(20px,2.4vw,28px);max-width:30ch;line-height:1.35;color:var(--ink)}
+.btn{display:inline-block;margin:28px 12px 0 0;padding:16px 24px;border-radius:4px;font-weight:600;text-decoration:none;border:1px solid var(--amber)}
+.btn.p{background:var(--amber);color:#1A1206}
+section{padding:96px 0;border-bottom:1px solid var(--hl)}
+h2{font-size:clamp(32px,5vw,52px);line-height:1.05;margin-bottom:24px}
+p{color:var(--ink2);max-width:62ch;margin-bottom:14px}
+p strong{color:var(--ink);font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.shots{display:flex;gap:20px;justify-content:center}
+.shots img{width:min(46%,260px);border-radius:28px;border:1px solid var(--hl)}
+figure img.wide{width:100%;border-radius:12px;border:1px solid var(--hl);margin-top:32px}
+figcaption{font-size:13px;color:var(--ink2);margin-top:8px}
+ol{list-style:none;display:grid;gap:24px;margin-top:32px;counter-reset:s}
+ol li{counter-increment:s;display:grid;grid-template-columns:48px 1fr;color:var(--ink2)}
+ol li::before{content:counter(s);color:var(--amber);font-weight:700;font-size:22px}
+ol b{display:block;color:var(--ink);font-weight:600}
+.hold{position:relative;margin-top:28px;height:64px;max-width:520px;border:1px solid var(--amber);border-radius:4px;overflow:hidden;cursor:pointer;user-select:none;touch-action:none}
+.hold canvas{position:absolute;inset:0}
+.hold span{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;color:var(--amber);text-shadow:0 0 6px #000,0 0 2px #000}
+.hold.on{background:var(--amber)}
+.hold.on span{color:#1A1206;text-shadow:none}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{text-align:left;padding:12px 10px;border-bottom:1px solid var(--hl);color:var(--ink2)}
+th{color:var(--ink);font-weight:600}
+.tw{overflow-x:auto}
+footer{padding:48px 0;color:var(--ink2)}
+footer p{font-size:14px}
+.r{opacity:0;transform:translateY(12px);transition:opacity .4s cubic-bezier(.23,1,.32,1),transform .4s cubic-bezier(.23,1,.32,1)}
+.r.in{opacity:1;transform:none}
+@media(max-width:760px){.two{grid-template-columns:1fr;gap:32px}section{padding:64px 0}}
+@media(prefers-reduced-motion:reduce){.r{opacity:1;transform:none;transition:none}}
+a:focus-visible,.hold:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+</style></head>
+<body>
+<header>
+<canvas data-dither="x" data-from=".5" data-to="0" data-cell="4" aria-hidden="true"></canvas>
+<div class="w">
+<div class="k">Ola S1 · phone app · on-dash HUD</div>
+<h1 class="x">better<b>-</b>ola</h1>
+<p class="lede">No laptop. No flashing. A restart undoes it.</p>
+<a class="btn p" href="https://github.com/a3ro-dev/ola-s1-air-mod/releases">Download the APK</a>
+<a class="btn" href="https://github.com/a3ro-dev/ola-s1-air-mod">Source on GitHub</a>
+</div></header>
+
+<section><div class="w two">
+<div class="r">
+<h2 class="x">It finds the scooter. You do one thing.</h2>
+<p>I got tired of opening a laptop every time i wanted Android Auto on the dash, so this is the phone version of that. It sits on your hotspot, finds the scooter, remembers it, and reconnects by itself next time.</p>
+<p>Setup unlocks ADB in memory, installs the mods you picked, grants the permissions they need and puts the dash back on its home screen. Then there's one button. You hold it, and Android Auto goes on the dash.</p>
+<div class="hold" id="hold" role="button" tabindex="0" aria-label="Demo: hold to open Android Auto on the dash">
+<canvas data-dither="x" data-from="1" data-to="1" data-t="0" data-cell="3" aria-hidden="true"></canvas>
+<span id="holdl">Hold to open Android Auto on the dash</span></div>
+<p style="font-size:13px;margin-top:8px">That's a demo of the real button. Try holding it.</p>
+</div>
+<div class="shots r">
+<img src="assets/shot-connect.png" alt="The connect screen on a real phone" loading="lazy">
+<img src="assets/mock-scooter.png" alt="Design mockup of the Scooter tab" loading="lazy">
+</div></div></section>
+
+<section><div class="w r">
+<h2 class="x">The HUD is a thin layer, not a new dashboard.</h2>
+<p>Speed, drive mode, charge and range sit top left in one pill, left of Android Auto's search bar. Indicators glow at the screen edges in ordered dither. The bottom edge is a power meter that goes amber on draw, green on regen and red when you brake.</p>
+<p><strong>It never takes a touch.</strong> The window is not touchable and not focusable, so every tap goes to Android Auto. It's all decoded read-only from the scooter's own CAN broadcasts, and nothing in it writes to the bus.</p>
+<figure><img class="wide" src="assets/hud.png" alt="Design render of the HUD over Android Auto" loading="lazy"><figcaption>Design render, not a photo from the scooter.</figcaption></figure>
+</div></section>
+
+<section><div class="w r">
+<h2 class="x">Setup, basically.</h2>
+<ol>
+<li><span><b>Turn on your phone's hotspot</b>Keep it on for the whole setup.</span></li>
+<li><span><b>Join it from the scooter</b>Settings, Wi-Fi, pick your phone.</span></li>
+<li><span><b>Open better-ola and scan</b>Side stand up and the screen awake while it runs. It remembers the scooter after that.</span></li>
+</ol>
+<p style="margin-top:32px">On Android Auto 17.4 and later, Self-Mode is gone, so the app uses the headunit server on port 5277. If the server's off it opens the settings and shows the one manual step, <strong>the three-dot menu, then Start headunit server</strong>. After that it opens Android Auto on the scooter itself.</p>
+</div></section>
+
+<section><div class="w r">
+<h2 class="x">Safe, and it undoes itself.</h2>
+<p>ADB is authorised with an RSA key bind-mounted in RAM. No partition is written and a restart removes it. The app leaves the power manager and auto-lock alone, so the scooter still locks itself.</p>
+<p>The dash and its physical warnings are the authority. Anything here can be late, wrong or blank, so glance only while riding, which is kinda obvious but i'm saying it anyway.</p>
+</div></section>
+
+<section><div class="w r">
+<h2 class="x">What it runs on.</h2>
+<div class="tw"><table>
+<tr><th>Model</th><th>Head unit</th><th>MoveOS</th><th>Status</th></tr>
+<tr><td>S1 Pro (Gen 2)</td><td>Snapdragon 625</td><td>3, 4, 5</td><td>Tested</td></tr>
+<tr><td>S1 Pro (Gen 1)</td><td>Snapdragon 212</td><td>2 to 5</td><td>Expected to work</td></tr>
+<tr><td>S1 (Gen 1)</td><td>Snapdragon 212</td><td>2 to 5</td><td>Expected to work</td></tr>
+<tr><td>S1 Air</td><td>Octa-core</td><td>3, 4, 5</td><td>Expected to work</td></tr>
+</table></div>
+<p style="margin-top:16px">Only the 7-inch Android touchscreen. Segmented-LCD and non-Android clusters are out. I've only tested the Gen 2 Pro, the rest is a guess based on the hardware.</p>
+<a class="btn p" href="https://github.com/a3ro-dev/ola-s1-air-mod/releases">Get the latest release</a>
+</div></section>
+
+<footer><div class="w">
+<p>Not affiliated with, endorsed by, or connected to Ola Electric Mobility Ltd. "Ola", "MoveOS" and "S1" belong to their owners and are used only to say what this works with. <a href="https://github.com/a3ro-dev/ola-s1-air-mod/blob/main/legal/DISCLAIMER.md">Read the disclaimer</a> · <a href="https://github.com/a3ro-dev/ola-s1-air-mod/blob/main/legal/PRIVACY.md">Privacy</a> · MIT licence · by a3ro-dev</p>
+</div></footer>
+
+<script type="module">
+import {paint} from './assets/dither.js';
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}));
+document.querySelectorAll('.r').forEach(n=>io.observe(n));
+// hold demo: fills with dither over 600ms, drains back if released early
+const h=document.getElementById('hold'),c=h.querySelector('canvas'),l=document.getElementById('holdl');
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const idle='Hold to open Android Auto on the dash';
+let t=0,dir=0,raf=0,last=0;
+const set=v=>{t=Math.max(0,Math.min(1,v));c.dataset.t=t;paint(c)};
+function tick(n){
+  const d=n-last;last=n;set(t+dir*d/(dir>0?600:300));
+  if(t>=1){dir=0;h.classList.add('on');l.textContent='On the dash';return}
+  if(t<=0&&dir<0){dir=0;return}
+  raf=requestAnimationFrame(tick)
+}
+function go(d){
+  h.classList.remove('on');l.textContent=idle;
+  if(still){set(d>0?1:0);if(d>0){h.classList.add('on');l.textContent='On the dash'}return}
+  dir=d;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)
+}
+h.onpointerdown=()=>go(1);
+['pointerup','pointerleave','pointercancel'].forEach(e=>h.addEventListener(e,()=>{if(t<1)go(-1)}));
+h.onkeydown=e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat)go(1)};
+h.onkeyup=()=>{if(t<1)go(-1)};
+</script>
+</body></html>

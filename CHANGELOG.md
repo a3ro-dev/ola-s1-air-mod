@@ -1,67 +1,46 @@
-## [1.2.0] - 2026-11-08
+# Changelog
 
-### 🚗 Vehicle Projection Mods Added
-* **Android Auto Support:**
-  * Added automated 1-click installation and configuration for Android Auto wireless projection.
-  * Automated ADB permission grants for Microphone (`RECORD_AUDIO`), Location (`ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`), Overlay (`SYSTEM_ALERT_WINDOW`), and Storage access.
-* **Apple CarPlay Support (`OpenPlay`):**
-  * Added official integration for Apple CarPlay wireless projection mod.
-  * High-speed online stream-installation.
-  * Direct "Open" and "Uninstall" controls provided on the App Manager dashboard.
+## 1.2.0 - 2026-11-08
 
-### 🔮 Balls Navigation Update
-* **Lockscreen Security Protection:**
-  * Overlay automatically detects MoveOS lock and standby states, instantly hiding floating controls to prevent unauthorized touch interactions when the vehicle is parked.
-* **Auto-Return to Home:**
-  * Added intelligent auto-return timer to bring the primary MoveOS speedometer cluster to the front, ensuring rider safety while riding.
-* **Native MoveOS App Drawer:**
-  * Enhanced overlay menu with a dedicated native app drawer to quickly switch between installed mods (Music, Maps, Settings, CarPlay, Browser) directly from any screen.
+Android Auto and CarPlay mods, a safer nav ball, and a lot more confirmation before anything changes on the scooter.
 
-### 🛡️ Safety & Usability
-* **Side Stand Safety Notice:**
-  * Added interactive post-install reminder popup and diagnostic log:
-    > *"Important: Use mod apps with the scooter stand UP. Lowering the side stand triggers vehicle auto-lock."*
-* **Install / Uninstall Confirmation Dialogs:**
-  * Added safety confirmation prompts for all actions (Install, Uninstall, Custom Sideload) in App Manager to eliminate accidental clicks.
-* **Direct App Launch ("Open" Button):**
-  * Added an instant "Open" button next to "Uninstall" for all detected apps, allowing riders to launch any mod directly onto the scooter display over ADB.
-* **Live Console Integration:**
-  * Every in-app action (Download, ADB install, package removal, app launch, display wake, screenshot save) now streams live logs to the in-app Terminal console.
-* **UI Polish:**
-  * Changed setup trigger CTA button to **"Install Mod"**.
-  * Removed duplicate console stream snippet from the bottom of Setup tab in favor of the dedicated full-screen Live Console.
-  * Pruned redundant repository APK binaries in favor of direct CDN distribution.
+**Projection mods**
+- One-tap Android Auto install and setup for wireless projection. The app grants the permissions over ADB: microphone (`RECORD_AUDIO`), location (`ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`), overlay (`SYSTEM_ALERT_WINDOW`) and storage.
+- Apple CarPlay through the OpenPlay mod, with a fast online install and Open and Uninstall buttons on the app manager.
 
----
+**Nav ball**
+- It notices the MoveOS lock and standby states and hides itself, so nobody can poke the dash while the scooter is parked.
+- An auto-return timer brings the MoveOS speedometer back to the front while you ride.
+- A native app drawer to jump between installed mods (Music, Maps, Settings, CarPlay, Browser) from any screen.
 
-## [1.1.0] - 2026-11-06
+**Safety and polish**
+- After install there's a reminder: "Important: Use mod apps with the scooter stand UP. Lowering the side stand triggers vehicle auto-lock."
+- Install, uninstall and custom sideload now ask first, so you can't hit them by accident.
+- An Open button next to Uninstall launches any detected app on the scooter display.
+- Every action (download, ADB install, package removal, app launch, display wake, screenshot save) streams to the in-app terminal.
+- The setup button now says **Install Mod**, and the duplicate console snippet at the bottom of Setup is gone.
+- Dropped the old APK binaries from the repo in favour of direct CDN downloads.
 
-### Added
-* **Live Head Unit RAM Telemetry:**
-  * Real-time `/proc/meminfo` query over gRPC/ADB displaying Total RAM, Used RAM, and Free RAM in MB.
-  * Dynamic color-coded status card (Green $\ge$ 200 MB, Orange 150–200 MB, Red $<$ 150 MB free memory).
-* **Firefox Focus Web Browser:**
-  * Integrated downloadable ARM64 Firefox Focus browser catalog with download progress streaming and background installation.
-* **Custom APK Sideloading:**
-  * Pick and install any local `.apk` file from phone storage directly onto the scooter display.
-* **Zero-Clipping UI Layout:**
-  * Restructured App Manager rows into modern vertical tiered cards preventing status badge truncation on smaller smartphone screens.
+## 1.1.0 - 2026-11-06
 
-### Fixed
-* Fixed premature dashboard redirect on multicast auto-scan; live gRPC handshake is now verified before transitioning to connected state.
-* Removed redundant Scope ID input field in Manual Connection mode for cleaner IP/MAC connection.
+**Added**
+- Live head unit RAM, read from `/proc/meminfo` over gRPC and ADB, shown as total, used and free in MB. The card is green at 200 MB free or more, orange from 150 to 200 and red below 150.
+- Firefox Focus (ARM64) in the catalog, with download progress and a background install.
+- Custom APK sideloading from phone storage straight onto the scooter display.
+- App manager rows are now vertical cards, so status badges don't get cut off on small phones.
 
----
+**Fixed**
+- Multicast auto-scan redirected to the dashboard too early. It now checks the gRPC handshake first.
+- Removed the Scope ID field from manual connection, since IP or MAC is enough.
 
-## [1.0.0] - 2026-11-01
+## 1.0.0 - 2026-11-01
 
-### Added
-* Initial public open-source release of **S1Mods**.
-* **Zero-PC Android Application (`S1Mods`):** Complete Kotlin Jetpack Compose companion app.
-* **Automatic Discovery Engine:** Multicast IPv6 link-local and subnet scanner for MoveOS root diagnostics daemon on TCP port `50005`.
-* **In-Memory RAM Bind Mount:** Safe, reversible ADB authorization over TCP port `5555` without modifying persistent flash partitions.
-* **Balls Touch Navigation:** Bundled overlay providing Back, Home, and Settings touch controls on the dashboard.
-* **Music Mod Player:** Lightweight ad-free streaming & local media playback.
-* **Toolbox Suite:** Display screenshot capture, hardware specification inspection, and settings launcher.
-* **Diagnostic Root Shell:** Interactive terminal to execute arbitrary diagnostic shell commands as `uid 0`.
+First public release of **S1Mods**.
 
+- A Kotlin and Jetpack Compose companion app, so no PC is needed.
+- Automatic discovery: multicast IPv6 link-local and subnet scanning for the MoveOS root diagnostics daemon on TCP port `50005`.
+- ADB authorisation through an in-memory RAM bind mount over TCP port `5555`, without touching persistent flash.
+- Balls touch navigation: an overlay with Back, Home and Settings on the dash.
+- A lightweight music player for streaming and local media, no ads.
+- Toolbox: screenshot, hardware info and a settings launcher.
+- A diagnostic root shell that runs commands as `uid 0`.

@@ -1,0 +1,18 @@
+<meta charset=utf-8><link rel=stylesheet href=../assets/base.css>
+<style>body{width:1600px;height:900px;display:grid;place-items:center;background:#0b0a09}
+.dash{position:relative;width:1200px;height:720px;background:#14213d;border-radius:28px;overflow:hidden;border:2px solid var(--hl)}
+.aa{position:absolute;inset:0;background:linear-gradient(135deg,#1c2b4a,#0e1a30)}
+.aa i{position:absolute;border-radius:18px;background:#ffffff14}
+.pill{position:absolute;left:100px;top:24px;background:#000;border-radius:40px;padding:12px 28px;display:flex;gap:26px;align-items:baseline;font-size:34px}
+.pill b{font-size:50px}.pill span{color:var(--ink2);font-size:24px}
+.l,.r,.bt{position:absolute}.l{left:0;top:0;bottom:0;width:70px}.r{right:0;top:0;bottom:0;width:70px}.bt{left:0;right:0;bottom:0;height:28px}
+.cap{position:absolute;left:0;right:0;bottom:36px;text-align:center;font-size:24px;color:var(--ink2);letter-spacing:.08em}</style>
+<div class=dash><div class=aa>
+<i style="left:30px;top:120px;width:230px;height:540px"></i><i style="left:290px;top:120px;width:880px;height:250px"></i>
+<i style="left:290px;top:400px;width:430px;height:260px"></i><i style="left:740px;top:400px;width:430px;height:260px"></i></div>
+<div class=pill><b class=x>0</b><span>km/h</span><span style="color:var(--ink)">Parked</span><b class=x style="color:var(--amber)">62%</b></div>
+<div class=l><canvas data-dither=x data-from=.7 data-to=0 data-cell=3></canvas></div>
+<div class=r><canvas data-dither=x data-from=0 data-to=0 data-cell=3></canvas></div>
+<div class=bt><canvas data-dither=x data-from=.6 data-to=.6 data-t=1 data-cell=3 style="clip-path:inset(0 52% 0 0)"></canvas></div></div>
+<div class=cap>THE HUD OVER ANDROID AUTO · DESIGN RENDER</div>
+<script type=module src=../assets/dither.js></script>
